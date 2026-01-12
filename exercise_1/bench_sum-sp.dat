@@ -1,0 +1,33 @@
+Allocate: Process running on hwthread 4 (Domain N) - Vector length 4000/16000 Offset 0 Alignment 1024
+--------------------------------------------------------------------------------
+LIKWID MICRO BENCHMARK
+Test: sum_sp
+--------------------------------------------------------------------------------
+Using 1 work groups
+Using 1 threads
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Group: 0 Thread 0 Global Thread 0 running on hwthread 4 - Vector length 4000 Offset 0
+--------------------------------------------------------------------------------
+Cycles:			2093720480
+CPU Clock:		1996226630
+Cycle Clock:		1996226630
+Time:			1.048839e+00 sec
+Iterations:		1048576
+Iterations per thread:	1048576
+Inner loop executions:	1000
+Size (Byte):		16000
+Size per thread:	16000
+Number of Flops:	4194304000
+MFlops/s:		3999.00
+Data volume (Byte):	16777216000
+MByte/s:		15995.99
+Cycles per update:	0.499182
+Cycles per cacheline:	7.986910
+Loads per update:	1
+Stores per update:	0
+Load bytes per element:	4
+Store bytes per elem.:	0
+Instructions:		7340032020
+UOPs:			10485760000
+--------------------------------------------------------------------------------
