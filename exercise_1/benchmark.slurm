@@ -11,5 +11,5 @@
 module purge
 module load gcc
 module load likwid/5.2.0
-likwid-bench -t sum_sp -w N:16kB:1
+likwid-bench -t sum_sp_avx -w N:16kB:1 > "bench_avx.dat"
 
