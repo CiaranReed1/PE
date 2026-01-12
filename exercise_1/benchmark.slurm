@@ -11,5 +11,6 @@
 module purge
 module load gcc
 module load likwid/5.2.0
-likwid-bench -t sum_sp_avx -w N:16kB:1 > "bench_avx.dat"
-
+for size in 1kB 2kB 4kB 8kB 16kB 64kB 256kB 1MB 4MB 16MB 64MB 128MB; do
+  echo $size $(likwid-bench -t sum_sp -w N:$size:1 2> /dev/null | grep MFlops/s | cut -f 3)
+done
