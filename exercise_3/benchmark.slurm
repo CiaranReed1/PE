@@ -109,7 +109,8 @@ for level in L1 L2 L3 MEM; do
     # Run LIKWID on both sockets
     bw=$(likwid-bench -t clload \
         -w S0:${size_per_socket}:64,S1:${size_per_socket}:64 \
-        2>/dev/null | grep MByte/s | awk '{print $3}')
+        2>/dev/null | awk '/MByte\/s/ {sum += $NF} END {print sum}')
+
 
     echo "128 $level $bw" >> $OUTFILE
 done
