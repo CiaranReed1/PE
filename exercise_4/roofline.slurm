@@ -12,7 +12,6 @@
 module purge
 module load gcc
 gcc dmvm.c -O0 -o r 
-for size in 1000 2500 5000 7500 10000 12500 50000 75000 100000 do
-    echo "Running size $size"
+for size in 1000 2500 5000 7500 10000 12500 15000 17500 20000 25000 50000 75000 100000; do
     ./r $size 10000 
 done
