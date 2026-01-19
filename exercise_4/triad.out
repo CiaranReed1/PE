@@ -1,0 +1,37 @@
+Allocate: Process running on hwthread 37 (Domain S0) - Vector length 156250000/1250000000 Offset 0 Alignment 512
+Allocate: Process running on hwthread 37 (Domain S0) - Vector length 156250000/1250000000 Offset 0 Alignment 512
+Allocate: Process running on hwthread 37 (Domain S0) - Vector length 156250000/1250000000 Offset 0 Alignment 512
+Allocate: Process running on hwthread 37 (Domain S0) - Vector length 156250000/1250000000 Offset 0 Alignment 512
+--------------------------------------------------------------------------------
+LIKWID MICRO BENCHMARK
+Test: triad
+--------------------------------------------------------------------------------
+Using 1 work groups
+Using 1 threads
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Group: 0 Thread 0 Global Thread 0 running on hwthread 37 - Vector length 156250000 Offset 0
+--------------------------------------------------------------------------------
+Cycles:			5248464040
+CPU Clock:		1996216143
+Cycle Clock:		1996216143
+Time:			2.629206e+00 sec
+Iterations:		10
+Iterations per thread:	10
+Inner loop executions:	39062500
+Size (Byte):		5000000000
+Size per thread:	5000000000
+Number of Flops:	3125000000
+MFlops/s:		1188.57
+Data volume (Byte):	50000000000
+MByte/s:		19017.15
+Cycles per update:	3.359017
+Cycles per cacheline:	26.872136
+Loads per update:	3
+Stores per update:	1
+Load bytes per element:	24
+Store bytes per elem.:	8
+Load/store ratio:	3.00
+Instructions:		7421875016
+UOPs:			11718750000
+--------------------------------------------------------------------------------
