@@ -5,7 +5,7 @@
 #SBATCH --job-name=benchmark
 #SBATCH -o /dev/null
 #SBATCH -e benchmark.err
-#SBATCH -t 01:00:00
+#SBATCH -t 00:15:00
 #SBATCH -p multi
 
 module purge
