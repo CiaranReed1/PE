@@ -20,7 +20,7 @@ echo "#iter rows cols flops" > roofline_O1.out
 echo "#iter rows cols flops" > roofline_O2.out
 echo "#iter rows cols flops" > roofline_O3.out
 
-for size in 1000 2500 5000 7500 10000 12500 15000 17500 20000 25000 50000 75000 100000; do
+for size in 1000 2500 5000 7500 10000 12500 15000 17500 20000 25000 50000 75000 100000 1000000; do
     ./r0 $size 10000 >> roofline_O0.out
     ./r1 $size 10000 >> roofline_O1.out
     ./r2 $size 10000 >> roofline_O2.out

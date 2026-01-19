@@ -10,8 +10,13 @@ exptected_peak = min(compute_roof,memory_bandwidth*AI)
 AI_range = np.logspace(-2,2,100)
 const_AI = roofline_data['flops']*0 + AI
 fig, ax = plt.subplots(1,1,figsize=(10,6))
+optimisation_levels = ["O0","O1", "O2", "O3"]
+colors = ["red", "blue", "green", "orange"]
+for level in optimisation_levels:
+    roofline_data = pd.read_csv(f'roofline_{level}.out',delim_whitespace=True)
+    const_AI = roofline_data['flops']*0 + AI
+    ax.scatter(const_AI,roofline_data["flops"]*1000000, label=f'Measured Performance {level}', color=colors[optimisation_levels.index(level)],marker= "x")
 ax.loglog(AI_range, np.minimum(compute_roof, memory_bandwidth*AI_range), label='Roofline Model', color='gray')
-ax.scatter(const_AI,roofline_data["flops"]*1000000, label='Measured Performance', color='red',marker= "x")
 ax.legend()
 ax.set_xlabel('Arithmetic Intensity (FLOP/Byte)')
 ax.set_ylabel('Performance (FLOP/s)')
