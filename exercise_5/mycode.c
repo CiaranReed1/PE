@@ -1,5 +1,9 @@
-#include <stdlib.h>
+#define _GNU_SOURCE
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <immintrin.h>
+#include <time.h>
 
 #ifdef LIKWID_PERFMON
 #include <likwid.h>
