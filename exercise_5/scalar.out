@@ -19,14 +19,15 @@ Region Scalar, Group 1: Custom
 +-------------------+--------------+
 |    Region Info    | HWThread 112 |
 +-------------------+--------------+
-| RDTSC Runtime [s] |     0.001332 |
+| RDTSC Runtime [s] |     0.001261 |
 |     call count    |            1 |
 +-------------------+--------------+
 
 +---------------------+---------+--------------+
 |        Event        | Counter | HWThread 112 |
 +---------------------+---------+--------------+
-| Runtime (RDTSC) [s] |   TSC   | 1.331579e-03 |
-|  LS_DISPATCH_LOADS  |   PMC0  |      3005547 |
+| Runtime (RDTSC) [s] |   TSC   | 1.260915e-03 |
+|  LS_DISPATCH_LOADS  |   PMC0  |      3006317 |
+|  LS_DISPATCH_STORES |   PMC1  |      1002497 |
 +---------------------+---------+--------------+
 

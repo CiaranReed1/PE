@@ -19,14 +19,15 @@ Region SSE, Group 1: Custom
 +-------------------+--------------+
 |    Region Info    | HWThread 112 |
 +-------------------+--------------+
-| RDTSC Runtime [s] |     0.001237 |
+| RDTSC Runtime [s] |     0.001199 |
 |     call count    |            1 |
 +-------------------+--------------+
 
 +---------------------+---------+--------------+
 |        Event        | Counter | HWThread 112 |
 +---------------------+---------+--------------+
-| Runtime (RDTSC) [s] |   TSC   | 1.236661e-03 |
-|  LS_DISPATCH_LOADS  |   PMC0  |      1508203 |
+| Runtime (RDTSC) [s] |   TSC   | 1.198760e-03 |
+|  LS_DISPATCH_LOADS  |   PMC0  |      1508363 |
+|  LS_DISPATCH_STORES |   PMC1  |       503092 |
 +---------------------+---------+--------------+
 
