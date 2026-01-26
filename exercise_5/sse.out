@@ -1,0 +1,32 @@
+INFO: You are running LIKWID in a cpuset with 1 CPUs. Taking given IDs as logical ID in cpuset
+--------------------------------------------------------------------------------
+CPU name:	AMD EPYC 7702 64-Core Processor
+CPU type:	AMD K17 (Zen2) architecture
+CPU clock:	2.00 GHz
+--------------------------------------------------------------------------------
+WARN: Skipping region Scalar-0 for evaluation.
+WARN: Skipping region AVX-0 for evaluation.
+WARN: Skipping region FMA-0 for evaluation.
+WARN: Skipping region UNALIGNED-0 for evaluation.
+WARN: Skipping region ALIGNED-0 for evaluation.
+WARN: Regions are skipped because:
+      - The region was only registered
+      - The region was started but never stopped
+      - The region was never started but stopped
+sse loop, sum 3.33328e+17
+--------------------------------------------------------------------------------
+Region SSE, Group 1: Custom
++-------------------+--------------+
+|    Region Info    | HWThread 112 |
++-------------------+--------------+
+| RDTSC Runtime [s] |     0.001237 |
+|     call count    |            1 |
++-------------------+--------------+
+
++---------------------+---------+--------------+
+|        Event        | Counter | HWThread 112 |
++---------------------+---------+--------------+
+| Runtime (RDTSC) [s] |   TSC   | 1.236661e-03 |
+|  LS_DISPATCH_LOADS  |   PMC0  |      1508203 |
++---------------------+---------+--------------+
+
