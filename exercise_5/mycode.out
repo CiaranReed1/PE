@@ -1,0 +1,23 @@
+INFO: You are running LIKWID in a cpuset with 1 CPUs. Taking given IDs as logical ID in cpuset
+--------------------------------------------------------------------------------
+CPU name:	AMD EPYC 7702 64-Core Processor                
+CPU type:	AMD K17 (Zen2) architecture
+CPU clock:	2.00 GHz
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Region MYLOOP, Group 1: Custom
++-------------------+------------+
+|    Region Info    | HWThread 0 |
++-------------------+------------+
+| RDTSC Runtime [s] |   0.001471 |
+|     call count    |          1 |
++-------------------+------------+
+
++---------------------+---------+--------------+
+|        Event        | Counter |  HWThread 0  |
++---------------------+---------+--------------+
+| Runtime (RDTSC) [s] |   TSC   | 1.471319e-03 |
+|  LS_DISPATCH_LOADS  |   PMC0  |      2005002 |
+|  LS_DISPATCH_STORES |   PMC1  |      2004072 |
++---------------------+---------+--------------+
+
