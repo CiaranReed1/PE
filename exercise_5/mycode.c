@@ -37,6 +37,7 @@ for (int i = 0; i < n; i+= 2) {
     z_ = _mm_loadu_pd(z + i);
     tmp = _mm_mul_pd(x_, _mm_set1_pd(2.0));
     y_ = _mm_add_pd(z_, tmp);
+    _mm_storeu_pd(y + i, y_);
     z_ = _mm_add_pd(z_, y_);
     _mm_storeu_pd(z + i, z_);
 }
@@ -52,6 +53,7 @@ static void avx(int n, const double * restrict x, double * restrict y, double * 
     z_ = _mm256_loadu_pd(z + i);
     tmp = _mm256_mul_pd(x_, _mm256_set1_pd(2.0));
     y_ = _mm256_add_pd(z_,tmp);
+    _mm256_storeu_pd(y + i, y_);
     z_ = _mm256_add_pd(z_,y_);
     _mm256_storeu_pd(z + i, z_);
   }
@@ -65,6 +67,7 @@ static void fma(int n, const double * restrict x, double * restrict y, double * 
     x_ = _mm256_loadu_pd(x + i);
     z_ = _mm256_loadu_pd(z + i);
     y_ = _mm256_fmadd_pd(x_, _mm256_set1_pd(2.0), z_);
+    _mm256_storeu_pd(y + i, y_);
     z_ = _mm256_add_pd(z_, y_);
     _mm256_storeu_pd(z + i, z_);
   }
