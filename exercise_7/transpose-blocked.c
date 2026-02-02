@@ -33,10 +33,10 @@ double getTimeStamp()
 }
 
 #ifndef CSTRIDE
-#define CSTRIDE 64
+#define CSTRIDE 32
 #endif
 #ifndef RSTRIDE
-#define RSTRIDE 64
+#define RSTRIDE 32
 #endif
 
 static inline void single_transpose(double * restrict b,
