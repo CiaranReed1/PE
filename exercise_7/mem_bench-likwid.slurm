@@ -11,8 +11,8 @@
 
 module load intel/2022.2
 module load likwid/5.2.0
-icx -O1 -std=c99 -DLIKWID_PERFMON -o transpose transpose.c -llikwid
-icx -O1 -std=c99 -DLIKWID_PERFMON -o transpose-blocked transpose-blocked.c -llikwid
+icx -O1 -std=c99 -DLIKWID_PERFMON -pthread -o transpose transpose.c -llikwid
+icx -O1 -std=c99 -DLIKWID_PERFMON -pthread -o transpose-blocked transpose-blocked.c -llikwid
 
 likwid-perfctr -g MEM -C 0 -m transpose 4096 4096 > likwid_transpose.out
 likwid-perfctr -g MEM -C 0 -m transpose-blocked 4096 4096 > likwid_transpose-blocked.out
