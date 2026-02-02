@@ -17,6 +17,8 @@
 #define LIKWID_MARKER_REGISTER(a) do { (void)a; } while (0)
 #endif  /* LIKWID_PERFMON */
 
+
+
 #define ARRAY_ALIGNMENT 64
 
 #ifndef MIN
@@ -105,8 +107,7 @@ int main (int argc, char** argv)
   }
 
   LIKWID_MARKER_INIT;
-  LIKWID_MARKER_THREADINIT;
-  LIKWID_MARKER_REGISTER("transpose");
+  //LIKWID_MARKER_REGISTER("transpose");
 
   posix_memalign((void**) &a, ARRAY_ALIGNMENT, Nr * Nc * bytesPerWord );
   posix_memalign((void**) &b, ARRAY_ALIGNMENT, Nc * Nr * bytesPerWord );
