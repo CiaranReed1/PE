@@ -130,6 +130,7 @@ int main (int argc, char** argv)
     times[1] = times[0];
   }
 
+  iter = 1;
   walltime = transpose(b, a, Nr, Nc, iter);
 
   bytes = (double) bytesPerWord * Nc * Nr * iter;
