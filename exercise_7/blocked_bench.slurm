@@ -5,7 +5,7 @@
 #SBATCH --mem=64G #up to 250G on shared queue
 #SBATCH --job-name="transpose-bench"
 #SBATCH -o /dev/null #can use /dev/null to suppress output
-#SBATCH -e mem-bench.err #can use /dev/null to suppress error output
+#SBATCH -e blocked-bench.err #can use /dev/null to suppress error output
 #SBATCH -t 01:00:00 #allowed time
 #SBATCH -p shared  #Queue: shared, multi, long, bigmem, test
 
@@ -19,5 +19,5 @@ done
 for size in 128 256 512 1024 2048 4096 8192 16384 32768; do
 ./transpose-blocked $size $size >> transpose-blocked_mem-32.dat
 done
-rm transpose transpose-blocked
+rm transpose-blocked
 
