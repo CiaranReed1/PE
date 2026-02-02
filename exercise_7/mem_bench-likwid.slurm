@@ -15,7 +15,10 @@ module load likwid/5.2.0
 icx -O1 -std=c99 -DLIKWID_PERFMON -pthread -o transpose transpose.c -llikwid
 icx -O1 -std=c99 -DLIKWID_PERFMON -pthread -o transpose-blocked transpose-blocked.c -llikwid
 
-likwid-perfctr -g MEM -C 0 -m ./transpose 4096 4096 > likwid_transpose.out
-likwid-perfctr -g MEM -C 0 -m ./transpose-blocked 4096 4096 > likwid_transpose-blocked.out
+likwid-perfctr -g MEM -C 0 -m ./transpose 4096 4096 > likwid_transpose_4096.out
+likwid-perfctr -g MEM -C 0 -m ./transpose-blocked 4096 4096 > likwid_transpose-blocked_4096.out
+likwid-perfctr -g MEM -C 0 -m ./transpose 5000 5000 > likwid_transpose_5000.out
+likwid-perfctr -g MEM -C 0 -m ./transpose-blocked 5000 5000 > likwid_transpose-blocked_5000.out
+
 rm transpose transpose-blocked
 
