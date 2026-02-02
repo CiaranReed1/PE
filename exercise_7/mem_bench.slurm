@@ -12,9 +12,11 @@
 module load intel/2022.2
 icx -O1 -std=c99 -o transpose transpose.c
 icx -O1 -std=c99 -o transpose-blocked transpose-blocked.c
-for size in 100 200 400 800 1600 3200 6400 12800 25600 
+for size in 100 200 400 800 1600 3200 6400 12800 25600; do
 ./transpose $size $size
-for size in 128 256 512 1024 2048 4096 8192 16384 32768
+done
+for size in 128 256 512 1024 2048 4096 8192 16384 32768; do
 ./transpose $size $size
+done
 rm transpose transpose-blocked
 
