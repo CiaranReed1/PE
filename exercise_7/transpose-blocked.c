@@ -131,7 +131,7 @@ int main (int argc, char** argv)
   walltime = transpose(b, a, Nr, Nc, iter);
 
   bytes = (double) bytesPerWord * Nc * Nr * iter;
-  printf("Nrow Ncol EffectiveBW EffectiveLoadMBytes EffectiveStoreMBytes\n");
+  //"printf("Nrow Ncol EffectiveBW EffectiveLoadMBytes EffectiveStoreMBytes\n");
   printf("%zu %zu %.2f %.2f %.2f\n", Nr, Nc, 3 * 1.0E-06 * bytes /walltime, 2*bytes*1e-6, bytes*1e-6);
 
   LIKWID_MARKER_CLOSE;
