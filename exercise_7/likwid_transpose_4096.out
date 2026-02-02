@@ -1,0 +1,38 @@
+INFO: You are running LIKWID in a cpuset with 1 CPUs. Taking given IDs as logical ID in cpuset
+--------------------------------------------------------------------------------
+CPU name:	AMD EPYC 7702 64-Core Processor                
+CPU type:	AMD K17 (Zen2) architecture
+CPU clock:	2.00 GHz
+--------------------------------------------------------------------------------
+4096 4096 2507.56 268.44 134.22
+--------------------------------------------------------------------------------
+Region transpose, Group 1: MEM
++-------------------+------------+
+|    Region Info    | HWThread 0 |
++-------------------+------------+
+| RDTSC Runtime [s] |   0.160253 |
+|     call count    |          1 |
++-------------------+------------+
+
++----------------------+---------+------------+
+|         Event        | Counter | HWThread 0 |
++----------------------+---------+------------+
+|   ACTUAL_CPU_CLOCK   |  FIXC1  |  535582400 |
+|     MAX_CPU_CLOCK    |  FIXC2  |  320205900 |
+| RETIRED_INSTRUCTIONS |   PMC0  |  100715400 |
+|  CPU_CLOCKS_UNHALTED |   PMC1  |  530988800 |
+|    DRAM_CHANNEL_0    |   DFC0  |   39950690 |
+|    DRAM_CHANNEL_1    |   DFC1  |   39962500 |
++----------------------+---------+------------+
+
++-----------------------------+------------+
+|            Metric           | HWThread 0 |
++-----------------------------+------------+
+|     Runtime (RDTSC) [s]     |     0.1603 |
+|     Runtime unhalted [s]    |     0.2683 |
+|         Clock [MHz]         |  3338.9206 |
+|             CPI             |     5.2722 |
+| Memory bandwidth [MBytes/s] | 31914.7510 |
+| Memory data volume [GBytes] |     5.1144 |
++-----------------------------+------------+
+

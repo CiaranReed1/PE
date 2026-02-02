@@ -1,0 +1,7 @@
+mycode.c:63:13: warning: conflicting types for built-in function ‘fma’; expected ‘double(double,  double,  double)’ [-Wbuiltin-declaration-mismatch]
+   63 | static void fma(int n, const double * restrict x, double * restrict y, double * restrict z){
+      |             ^~~
+mycode.c:10:1: note: ‘fma’ is declared in header ‘<math.h>’
+    9 | #include <likwid.h>
+  +++ |+#include <math.h>
+   10 | #else

@@ -1,0 +1,5 @@
+Metric	Unblocked 4096	Unblocked 5000	Blocked 4096	Blocked 5000
+Runtime (s)	0.1603	0.1508	0.0662	0.0618
+CPI	5.27	3.34	1.61	1.01
+Memory bandwidth (MB/s)	31,914	24,407	10,215	4,602
+Data volume (GB)	5.11	3.68	0.677	0.285
