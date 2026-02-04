@@ -1,5 +1,9 @@
 Initial Benchmark Runs:
 O0 timing : 
+
+Compiled via :
+gcc simple_code.c -O0 -pg -march=native  -o simple_code_O0
+
 real    0m22.440s
 user    0m22.385s
 sys     0m0.002s
@@ -11,10 +15,15 @@ Each sample counts as 0.01 seconds.
  24.87     22.61     5.57        1     5.57     5.57  perform_computation_two
 
 O3 timing : 
+
+Compiled via: 
+gcc simple_code.c -O3 -pg -march=native  -o simple_code_O3
+
 real    0m6.234s
 user    0m6.214s
 sys     0m0.002s
 
-
 Each sample counts as 0.01 seconds.
  no time accumulated
+
+ 
