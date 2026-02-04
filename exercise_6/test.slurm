@@ -6,7 +6,7 @@
 #SBATCH --job-name="profile-test"
 #SBATCH -o profile-test.out #can use /dev/null to suppress output
 #SBATCH -e profile-test.err #can use /dev/null to suppress error output
-#SBATCH -t 01:00:00 #allowed time
+#SBATCH -t 00:15:00 #allowed time
 #SBATCH -p shared  #Queue: shared, multi, long, bigmem, test
 
 module purge 
