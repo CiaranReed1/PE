@@ -10,7 +10,6 @@
 #SBATCH -p shared  #Queue: shared, multi, long, bigmem, test
 
 module purge 
-module load gcc
 module load gcc/12.2 likwid/5.2.0
 gcc simple_code.c -o simple_code
 time ./simple_code
