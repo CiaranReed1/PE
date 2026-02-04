@@ -1,0 +1,3 @@
+Initial Benchmark Runs:
+O0 timing : 
+O3 timing : 
