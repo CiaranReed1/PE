@@ -13,9 +13,9 @@ SIMD = yes
 
 
 CC =		mpiicpc
-CCFLAGS =	-O3 -fasm-blocks -DMPICH_IGNORE_CXX_SEEK -restrict -vec_report2 -fasm-blocks -fopenmp -DNOCHUNK
+CCFLAGS =	-O3 -pg -fasm-blocks -DMPICH_IGNORE_CXX_SEEK -restrict -vec_report2 -fasm-blocks -fopenmp -DNOCHUNK
 LINK =		mpiicpc
-LINKFLAGS =	-O3 -fasm-blocks -fopenmp
+LINKFLAGS =	-O3 -pg -fasm-blocks -fopenmp
 USRLIB =	
 SYSLIB =	
 SIZE =		size
