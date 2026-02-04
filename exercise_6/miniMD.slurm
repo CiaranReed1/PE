@@ -11,5 +11,6 @@
 module purge 
 module load intel/2022.2
 module load intelmpi/2021.6
+cd miniMD/ref
 make intel 
 make test
