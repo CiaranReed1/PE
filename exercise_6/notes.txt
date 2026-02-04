@@ -26,4 +26,16 @@ sys     0m0.002s
 Each sample counts as 0.01 seconds.
  no time accumulated
 
- 
+Adding more compiler flags fixed the issue (and made it slightly quicker):
+gcc simple_code.c -O3 -fno-inline -fno-reorder-functions -pg -march=native  -o simple_code_O3
+
+real    0m6.181s
+user    0m6.161s
+sys     0m0.002s
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total
+ time   seconds   seconds    calls   s/call   s/call  name
+ 76.43      4.70     4.70        1     4.70     4.70  perform_computation_one
+ 24.65      6.22     1.52        1     1.52     1.52  perform_computation_two
+
