@@ -14,3 +14,4 @@ module load gcc/12.2 likwid/5.2.0
 gcc -std=c99 -mfma -O1 -DLIKWID_PERFMON -fno-inline -march=native \
     -o simple_instrumented simple_instrumented.c -llikwid
 likwid-perfctr -m -g "MEM_DP" -C 0 ./simple_instrumented 100000  
+rm simple_instrumented
