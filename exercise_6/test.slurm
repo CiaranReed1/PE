@@ -11,7 +11,9 @@
 
 module purge 
 module load gcc/12.2 likwid/5.2.0
-gcc simple_code.c -o simple_code
-time ./simple_code
-rm simple_code 
+gcc simple_code.c -O0 -pg -march=native  -o simple_code_O0
+gcc simple_code.c -O3 -pg -march=native  -o simple_code_O3
+time ./simple_code_O0 100000 > simple_O0.out
+time ./simple_code_O3 100000 > simple_O3.out
+rm simple_code_O0 simple_code_O3
 
