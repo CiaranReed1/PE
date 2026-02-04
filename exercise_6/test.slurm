@@ -14,6 +14,11 @@ module load gcc/12.2 likwid/5.2.0
 gcc simple_code.c -O0 -pg -march=native  -o simple_code_O0
 gcc simple_code.c -O3 -pg -march=native  -o simple_code_O3
 time ./simple_code_O0 100000 > simple_O0.out 2> simple_O0.time
+mv gmon.out gmon_O0.out
 time ./simple_code_O3 100000 > simple_O3.out 2> simple_O3.time
-rm simple_code_O0 simple_code_O3
+mv gmon.out gmon_O3.out
+gprof simple_code_O0 gmon_O0.out > gprof_O0.txt
+gprof simple_code_O3 gmon_O3.out > gprof_O3.txt
+rm simple_code_O0 simple_code_O3 gmon_O0.out gmon_O3.out 
+
 
