@@ -17,7 +17,7 @@
 #endif  /* LIKWID_PERFMON */
 
 
-static void sca(int n, const double * restrict x, double * restrict y, double * restrict z){
+static void sca(int n, const double * x, double * y, double * z){
 LIKWID_MARKER_START("MYLOOP");
 #pragma clang loop vectorize(disable)
 #pragma novector

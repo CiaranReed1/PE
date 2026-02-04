@@ -11,10 +11,10 @@
 module purge
 module load gcc/12.2
 module load likwid/5.2.0
-gcc -std=c99 -mfma -O1 -DLIKWID_PERFMON -fno-inline -march=native -o mycode mycode.c -llikwid
-likwid-perfctr -m -g "LS_DISPATCH_LOADS:PMC0,LS_DISPATCH_STORES:PMC1" -C 0 ./mycode 1000000 sca > mycode-sca.out 2>&1
-likwid-perfctr -m -g "LS_DISPATCH_LOADS:PMC0,LS_DISPATCH_STORES:PMC1" -C 0 ./mycode 1000000 sse > mycode-sse.out 2>&1
-likwid-perfctr -m -g "LS_DISPATCH_LOADS:PMC0,LS_DISPATCH_STORES:PMC1" -C 0 ./mycode 1000000 avx > mycode-avx.out 2>&1
-likwid-perfctr -m -g "LS_DISPATCH_LOADS:PMC0,LS_DISPATCH_STORES:PMC1" -C 0 ./mycode 1000000 fma > mycode-fma.out 2>&1
+gcc -std=c99 -mfma -O0 -DLIKWID_PERFMON -fno-inline -march=native -o mycode mycode.c -llikwid
+likwid-perfctr -m -g "LS_DISPATCH_LOADS:PMC0,LS_DISPATCH_STORES:PMC1" -C 0 ./mycode 1000000 sca > mycode-O0-sca-norestrict.out 2>&1
+#likwid-perfctr -m -g "LS_DISPATCH_LOADS:PMC0,LS_DISPATCH_STORES:PMC1" -C 0 ./mycode 1000000 sse > mycode-O0-sse.out 2>&1
+#likwid-perfctr -m -g "LS_DISPATCH_LOADS:PMC0,LS_DISPATCH_STORES:PMC1" -C 0 ./mycode 1000000 avx > mycode-O0-avx.out 2>&1
+#likwid-perfctr -m -g "LS_DISPATCH_LOADS:PMC0,LS_DISPATCH_STORES:PMC1" -C 0 ./mycode 1000000 fma > mycode-O0-fma.out 2>&1
 rm mycode
 
