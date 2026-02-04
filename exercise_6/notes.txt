@@ -1,3 +1,20 @@
 Initial Benchmark Runs:
 O0 timing : 
+real    0m22.440s
+user    0m22.385s
+sys     0m0.002s
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total
+ time   seconds   seconds    calls   s/call   s/call  name
+ 76.15     17.04    17.04        1    17.04    17.04  perform_computation_one
+ 24.87     22.61     5.57        1     5.57     5.57  perform_computation_two
+
 O3 timing : 
+real    0m6.234s
+user    0m6.214s
+sys     0m0.002s
+
+
+Each sample counts as 0.01 seconds.
+ no time accumulated
