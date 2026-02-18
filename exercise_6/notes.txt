@@ -1,0 +1,69 @@
+Initial Benchmark Runs:
+O0 timing : 
+
+Compiled via :
+gcc simple_code.c -O0 -pg -march=native  -o simple_code_O0
+
+real    0m22.440s
+user    0m22.385s
+sys     0m0.002s
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total
+ time   seconds   seconds    calls   s/call   s/call  name
+ 76.15     17.04    17.04        1    17.04    17.04  perform_computation_one
+ 24.87     22.61     5.57        1     5.57     5.57  perform_computation_two
+
+O3 timing : 
+
+Compiled via: 
+gcc simple_code.c -O3 -pg -march=native  -o simple_code_O3
+
+real    0m6.234s
+user    0m6.214s
+sys     0m0.002s
+
+Each sample counts as 0.01 seconds.
+ no time accumulated
+
+Adding more compiler flags fixed the issue (and made it slightly quicker):
+gcc simple_code.c -O3 -fno-inline -fno-reorder-functions -pg -march=native  -o simple_code_O3
+
+real    0m6.181s
+user    0m6.161s
+sys     0m0.002s
+
+Each sample counts as 0.01 seconds.
+  %   cumulative   self              self     total
+ time   seconds   seconds    calls   s/call   s/call  name
+ 76.43      4.70     4.70        1     4.70     4.70  perform_computation_one
+ 24.65      6.22     1.52        1     1.52     1.52  perform_computation_two
+
+Likwid Profiling:
+ Region 1 ( computation 1 ):
+ +-----------------------------------+------------+
+|               Metric              | HWThread 5 |
++-----------------------------------+------------+
+|        Runtime (RDTSC) [s]        |    19.8972 |
+|        Runtime unhalted [s]       |    27.7217 |
+|            Clock [MHz]            |  2781.2107 |
+|                CPI                |     1.8367 |
+|            DP [MFLOP/s]           |   251.2896 |
+|    Memory bandwidth [MBytes/s]    | 10274.2671 |
+|    Memory data volume [GBytes]    |   204.4287 |
+| Operational intensity [FLOP/Byte] |     0.0245 |
++-----------------------------------+------------+
+
+Region 2 (Computation 2):
++-----------------------------------+------------+
+|               Metric              | HWThread 5 |
++-----------------------------------+------------+
+|        Runtime (RDTSC) [s]        |     6.1527 |
+|        Runtime unhalted [s]       |     8.4145 |
+|            Clock [MHz]            |  2729.9243 |
+|                CPI                |     1.2533 |
+|            DP [MFLOP/s]           |   541.7549 |
+|    Memory bandwidth [MBytes/s]    | 15699.8350 |
+|    Memory data volume [GBytes]    |    96.5957 |
+| Operational intensity [FLOP/Byte] |     0.0345 |
++-----------------------------------+------------+
