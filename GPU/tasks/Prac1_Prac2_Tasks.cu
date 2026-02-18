@@ -53,7 +53,10 @@ __global__ void grid1D_block2D() {
 // One way to achieve this is a grid-strided loop: https://developer.nvidia.com/blog/cuda-pro-tip-write-flexible-kernels-grid-stride-loops/
 
 __global__ void scalar_mul_strided(double *v, double *w, double a, const int N) {
- 
+  for (int i = threadIdx.x + blockIdx.x*blockDim.x; i < N; i += blockIdx.x*blockDim.x){
+    v[i] = a*w[i];
+  }
+  //loops through the array using one full block at a time, thus if you call this with 1 block and 32 threads. then each thread will do vectorsize / 32 computations
 }
 
 // ----- Task 4 -----//
@@ -118,11 +121,12 @@ int main(int argc, char **argv) {
   delete[] b;
 
   // Task 1
-  std::cout << "**************************** \n";
+  std::cout << "\n**************************** \n";
   std::cout << "Task 1: \n";
   printDeviceProperties();
   // Task 2 a)
-   std::cout << "**************************** \n";
+  
+   std::cout << "\n**************************** \n";
   std::cout << "Task 2: \n";
   grid1D_block1D<<<3,5>>>();
   cudaDeviceSynchronize();
@@ -131,7 +135,30 @@ int main(int argc, char **argv) {
   grid1D_block2D<<<3,t2block>>>();
   cudaDeviceSynchronize();
   // Task 3
-
+  std::cout << "\n**************************** \n";
+  std::cout << "Task 3: \n";
+  N = 256;
+  double *a = new double[N];
+  double *b = new double[N];
+  for (int i = 0; i < N;i++){
+    a[i] = i;
+  }
+  double *a_d;
+  double *b_d;
+  cudaMalloc((void **)&a_d, sizeof(double) * N);
+  cudaMalloc((void **)&b_d, sizeof(double) * N);
+  cudaMemcpy(a_d, a, sizeof(double) * N, cudaMemcpyHostToDevice);
+  cudaMemcpy(b_d, b, sizeof(double) * N, cudaMemcpyHostToDevice);
+  dim3 numBlocks(1);
+  dim3 threadsPerBlock(32);
+  scalar_mul_strided<<<numBlocks,threadsPerBlock>>>(a_d,b_d,N);
+  cudaDeviceSynchronize();
+  cudaMemcpy(b, b_d, sizeof(double) * N, cudaMemcpyDeviceToHost);
+  std::cout << "scalar_mul strided result:\n";
+  for (int i = 0; i < N; i++){
+    std::cout << b[i] << "  \n";
+  }
+  std::cout << "\n";
   // Task 4 a)
   
   // Task 4 b)
