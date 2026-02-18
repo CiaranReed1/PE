@@ -1,0 +1,5 @@
+Questions:
+For task 1: I print the max number of threads per block and the max number of threads per SM (multiprocessor). I expected them to be the same but the latter is double the max per block, why is this?
+
+For task 2: I used "row major ordering?" to calculate the global index. I.e i used the thread idx + the y index multiplied by the y dimension to loop through rows in the grid one by one assiging the index. 
+does it matter which dimension to use as the base? 

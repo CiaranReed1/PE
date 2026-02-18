@@ -118,16 +118,18 @@ int main(int argc, char **argv) {
   delete[] b;
 
   // Task 1
-  std::cout << "**************************** \n"
-  std::cout << "Task 1: \n"
+  std::cout << "**************************** \n";
+  std::cout << "Task 1: \n";
   printDeviceProperties();
   // Task 2 a)
-   std::cout << "**************************** \n"
-  std::cout << "Task 2: \n"
+   std::cout << "**************************** \n";
+  std::cout << "Task 2: \n";
   grid1D_block1D<<<3,5>>>();
+  cudaDeviceSynchronize();
   // Task 2 b)
   dim3 t2block(4,4);
   grid1D_block2D<<<3,t2block>>>();
+  cudaDeviceSynchronize();
   // Task 3
 
   // Task 4 a)
