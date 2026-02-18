@@ -19,6 +19,11 @@ void printDeviceProperties()
   std::cout << "Clock Frequency: " << prop.clockRate << " kHz\n";
   std::cout<< "Number of SMs: "<< prop.multiProcessorCount << "\n";
   std::cout << "Warp Size: "<< prop.warpSize << "\n";
+  std::cout << "Max Threads per Block: " << prop.maxThreadsPerBlock << "\n";
+  std::cout << "Max Threads per SM (should be same as above?): " << prop.maxThreadsPerMultiProcessor << "\n";
+  std::cout << "Total gloal memory: " << prop.totalGlobalMem << " bytes\n";
+  std::cout << "Total shared memory per block: " << prop.sharedMemPerBlock << " bytes\n";
+  std::cout << "Total constant memory (device wide): " << prop.totalConstMem << " bytes\n";
 }
 
 //----- Task 2 -----//
