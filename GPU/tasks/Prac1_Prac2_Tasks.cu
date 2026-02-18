@@ -53,8 +53,10 @@ __global__ void grid1D_block2D() {
 // One way to achieve this is a grid-strided loop: https://developer.nvidia.com/blog/cuda-pro-tip-write-flexible-kernels-grid-stride-loops/
 
 __global__ void scalar_mul_strided(double *v, double *w, double a, const int N) {
-  for (int i = threadIdx.x + blockIdx.x*blockDim.x; i < N; i += gridDim.x*blockDim.x){
-    v[i] = a*w[i];
+  int stride = gridDim.x*blockDim.x;
+  int global_idx = threadIdx.x + blockIdx.x*blockDim.x;
+  for (int i = global_idx; i < N; i += stride){
+    w[i] = a*v[i];
   }
   //loops through the array using one full grid at a time, thus if you call this with 2 blocks and 32 threads. then each thread will do vectorsize / (2 * 32) computations
 }
