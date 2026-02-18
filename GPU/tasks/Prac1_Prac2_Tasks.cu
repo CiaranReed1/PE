@@ -13,7 +13,12 @@
 // What do these properties mean for kernel configurations?
 void printDeviceProperties()
 {
- 
+  struct cudaDeviceProp prop;
+  cudaGetDeviceProperties(&prop, 0);
+  std::cout << "Device Name: " << prop.name << "\n";
+  std::cout << "Clock Frequency: " << prop.clockRate << " kHz\n";
+  std::cout<< "Number of SMs: "<< prop.multiProcessorCount << "\n";
+  std::cout << "Warp Size: "<< prop.warpSize << "\n";
 }
 
 //----- Task 2 -----//
@@ -102,7 +107,7 @@ int main(int argc, char **argv) {
   delete[] b;
 
   // Task 1
-
+  printDeviceProperties();
   // Task 2 a)
  
   // Task 2 b)
