@@ -41,7 +41,7 @@ __global__ void grid1D_block1D() {
 }
 
 __global__ void grid1D_block2D() {
-  int globalIdx = ((blockDim.x * blockDim.y) * blockIdx.x) + (threadIdx.x *blockDim.x + threadIdx.y);
+  int globalIdx = ((blockDim.x * blockDim.y) * blockIdx.x) + (threadIdx.y *blockDim.x + threadIdx.x);
   printf("BlockIdx 2D: %d\n", blockIdx.x);
   printf("ThreadIdx 2D: (x=%d, y=%d)\n", threadIdx.x, threadIdx.y);
   printf("GlobalIdx 2D: %d\n", globalIdx);
