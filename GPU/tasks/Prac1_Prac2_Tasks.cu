@@ -53,10 +53,10 @@ __global__ void grid1D_block2D() {
 // One way to achieve this is a grid-strided loop: https://developer.nvidia.com/blog/cuda-pro-tip-write-flexible-kernels-grid-stride-loops/
 
 __global__ void scalar_mul_strided(double *v, double *w, double a, const int N) {
-  for (int i = threadIdx.x + blockIdx.x*blockDim.x; i < N; i += blockIdx.x*blockDim.x){
+  for (int i = threadIdx.x + blockIdx.x*blockDim.x; i < N; i += gridDim.x*blockDim.x){
     v[i] = a*w[i];
   }
-  //loops through the array using one full block at a time, thus if you call this with 1 block and 32 threads. then each thread will do vectorsize / 32 computations
+  //loops through the array using one full grid at a time, thus if you call this with 2 blocks and 32 threads. then each thread will do vectorsize / (2 * 32) computations
 }
 
 // ----- Task 4 -----//
@@ -149,7 +149,7 @@ int main(int argc, char **argv) {
   cudaMalloc((void **)&b2_d, sizeof(double) * N);
   cudaMemcpy(a2_d, a2, sizeof(double) * N, cudaMemcpyHostToDevice);
   cudaMemcpy(b2_d, b2, sizeof(double) * N, cudaMemcpyHostToDevice);
-  dim3 numBlocks2(1);
+  dim3 numBlocks2(2);
   dim3 threadsPerBlock2(32);
   scalar_mul_strided<<<numBlocks2,threadsPerBlock2>>>(a2_d,b2_d,2,N);
   cudaDeviceSynchronize();
