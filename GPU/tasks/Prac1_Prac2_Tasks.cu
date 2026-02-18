@@ -34,11 +34,17 @@ void printDeviceProperties()
 //    in a 1D grid with 2D thread blocks. You might want to read the docs on CUDA's dim3 data type to start a kernel with this configuration.//    Compute and print the global index in the grid for each thread.
 
 __global__ void grid1D_block1D() {
- 
+  std::cout << "BlockIdx 1D: " << blockIdx.x << "\n";
+  std::cout << "ThreadIdx 1D: " << threadIdx.x << "\n";
+  int globalIdx = threadIdx.x + blockIdx.x * blockDim.x; 
+  std::cout << "GlobalIdx 1D: "<<globalIdx;
 }
 
 __global__ void grid1D_block2D() {
-  
+  std::cout << "BlockIdx 2D: "<< blockIdx.x << "\n";
+  std::cout << "ThreadIdx 2D: (x = "<< threadIdx.x << ", y = "<<threadIdx.y << ")\n";
+  int globalIdx = ((blockDim.x * blockDim.y) * blockIdx.x) + (threadIdx.x + threadIdx.y *blockDim.y);
+  std::cout << "GlobalIdx 2d: "<<globalIdx;
 }
 
 //----- Task 3 -----//
@@ -114,9 +120,10 @@ int main(int argc, char **argv) {
   // Task 1
   printDeviceProperties();
   // Task 2 a)
- 
+  grid1D_block1D<<<3,5>>>();
   // Task 2 b)
-  
+  dim3 t2block(4,4);
+  grid1D_block2D<<<3,t2block>>>();
   // Task 3
 
   // Task 4 a)
