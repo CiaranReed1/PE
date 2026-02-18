@@ -138,27 +138,31 @@ int main(int argc, char **argv) {
   std::cout << "\n**************************** \n";
   std::cout << "Task 3: \n";
   N = 256;
-  double *a = new double[N];
-  double *b = new double[N];
+  double *a2 = new double[N];
+  double *b2 = new double[N];
   for (int i = 0; i < N;i++){
-    a[i] = i;
+    a2[i] = i;
   }
-  double *a_d;
-  double *b_d;
-  cudaMalloc((void **)&a_d, sizeof(double) * N);
-  cudaMalloc((void **)&b_d, sizeof(double) * N);
-  cudaMemcpy(a_d, a, sizeof(double) * N, cudaMemcpyHostToDevice);
-  cudaMemcpy(b_d, b, sizeof(double) * N, cudaMemcpyHostToDevice);
-  dim3 numBlocks(1);
-  dim3 threadsPerBlock(32);
-  scalar_mul_strided<<<numBlocks,threadsPerBlock>>>(a_d,b_d,N);
+  double *a2_d;
+  double *b2_d;
+  cudaMalloc((void **)&a2_d, sizeof(double) * N);
+  cudaMalloc((void **)&b2_d, sizeof(double) * N);
+  cudaMemcpy(a2_d, a2, sizeof(double) * N, cudaMemcpyHostToDevice);
+  cudaMemcpy(b2_d, b2, sizeof(double) * N, cudaMemcpyHostToDevice);
+  dim3 numBlocks2(1);
+  dim3 threadsPerBlock2(32);
+  scalar_mul_strided<<<numBlocks2,threadsPerBlock2>>>(a2_d,b2_d,2,N);
   cudaDeviceSynchronize();
-  cudaMemcpy(b, b_d, sizeof(double) * N, cudaMemcpyDeviceToHost);
+  cudaMemcpy(b2, b2_d, sizeof(double) * N, cudaMemcpyDeviceToHost);
   std::cout << "scalar_mul strided result:\n";
   for (int i = 0; i < N; i++){
-    std::cout << b[i] << "  \n";
+    std::cout << b2[i] << "  \n";
   }
   std::cout << "\n";
+  cudaFree(a2_d);
+  cudaFree(b2_d);
+  delete[] a2;
+  delete[] b2;
   // Task 4 a)
   
   // Task 4 b)
