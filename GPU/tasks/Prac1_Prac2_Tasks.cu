@@ -1,5 +1,5 @@
 #include<iostream>
-
+#include<chrono>
 //----- Task 1 -----//
 // Following the CUDA programming guide on the function cudaGetDeviceProperties(cudaDeviceProp* prop, int  device), 
 // write a function printDeviceProperties(...) that prints the following GPU (architecture) properties to screen:
@@ -68,7 +68,12 @@ __global__ void scalar_mul_strided(double *v, double *w, double a, const int N) 
 // b) Use CUDA's unified memory instead of implementing the data transfers manually. 
 
 __global__ void vector_add(double *x, double *y, double *z, const int N) {
-  
+  //assuming 1D grid and 1D block dimensions
+  int stride = gridDim.x * blockDim.x;
+  int global_idx = threadIdx.x + blockIdx.x*blockDim.x;
+  for (int i = global_idx; i < N; i += stride){
+    z[i] = x[i] + y[i];
+  }
 }
 
 // ----- Task 5 -----//
@@ -122,29 +127,49 @@ int main(int argc, char **argv) {
   delete[] a;
   delete[] b;
 
+
+
   // Task 1
   std::cout << "\n**************************** \n";
   std::cout << "Task 1: \n";
   printDeviceProperties();
+
   // Task 2 a)
-  
    std::cout << "\n**************************** \n";
-  std::cout << "Task 2: \n";
+  std::cout << "Task 2a: \n";
+  auto t0 = std::chrono::high_resolution_clock::now();
   grid1D_block1D<<<3,5>>>();
   cudaDeviceSynchronize();
+  auto t1 = std::chrono::high_resolution_clock::now();
+  std::chrono::duration< double > fs = t1 - t0;
+  std::chrono::milliseconds d = std::chrono::duration_cast< std::chrono::milliseconds >( fs );
+  std::cout << fs.count() << "s\n";
+  std::cout << d.count() << "ms\n";
+
   // Task 2 b)
+    std::cout << "\n**************************** \n";
+  std::cout << "Task 2b: \n";
+   t0 = std::chrono::high_resolution_clock::now();
   dim3 t2block(4,4);
   grid1D_block2D<<<3,t2block>>>();
   cudaDeviceSynchronize();
+  t1 = std::chrono::high_resolution_clock::now();
+  fs = t1 - t0;
+  d = std::chrono::duration_cast< std::chrono::milliseconds >( fs );
+  std::cout << fs.count() << "s\n";
+  std::cout << d.count() << "ms\n";
+
   // Task 3
   std::cout << "\n**************************** \n";
   std::cout << "Task 3: \n";
+   t0 = std::chrono::high_resolution_clock::now();
   N = 256;
   double *a2 = new double[N];
   double *b2 = new double[N];
   for (int i = 0; i < N;i++){
     a2[i] = i;
   }
+  
   double *a2_d;
   double *b2_d;
   cudaMalloc((void **)&a2_d, sizeof(double) * N);
@@ -156,18 +181,93 @@ int main(int argc, char **argv) {
   scalar_mul_strided<<<numBlocks2,threadsPerBlock2>>>(a2_d,b2_d,2,N);
   cudaDeviceSynchronize();
   cudaMemcpy(b2, b2_d, sizeof(double) * N, cudaMemcpyDeviceToHost);
+  t1 = std::chrono::high_resolution_clock::now();
   std::cout << "scalar_mul strided result:\n";
   for (int i = 0; i < N; i++){
     std::cout << b2[i] << "  \n";
   }
   std::cout << "\n";
+  fs = t1 - t0;
+  d = std::chrono::duration_cast< std::chrono::milliseconds >( fs );
+  std::cout << fs.count() << "s\n";
+  std::cout << d.count() << "ms\n";
   cudaFree(a2_d);
   cudaFree(b2_d);
   delete[] a2;
   delete[] b2;
   // Task 4 a)
-  
+  std::cout << "\n**************************** \n";
+  std::cout << "Task 4a: \n";
+   t0 = std::chrono::high_resolution_clock::now();
+  N = 128;
+  double *a3 = new double[N];
+  double *b3 = new double[N];
+  double *c3 = new double[N];
+  for (int i = 0; i < N;i++){
+    a3[i] = i;
+    b3[i] = 2*i;
+  }
+  double *a3_d;
+  double *b3_d;
+  double *c3_d;
+  cudaMalloc((void **)&a3_d, sizeof(double) * N);
+  cudaMalloc((void **)&b3_d, sizeof(double) * N);
+  cudaMalloc((void **)&c3_d,sizeof(double)*N);
+  cudaMemcpy(a3_d, a3, sizeof(double) * N, cudaMemcpyHostToDevice);
+  cudaMemcpy(b3_d, b3, sizeof(double) * N, cudaMemcpyHostToDevice);
+  dim3 numBlocks3(2);
+  dim3 threadsPerBlock3(32);
+  vector_add<<<numBlocks3,threadsPerBlock3>>>(a3_d,b3_d,c3_d,N);
+  cudaDeviceSynchronize();
+  cudaMemcpy(c3, c3_d, sizeof(double) * N, cudaMemcpyDeviceToHost);
+  t1 = std::chrono::high_resolution_clock::now();
+  std::cout << "vector add manual memory result:\n";
+  for (int i = 0; i < N; i++){
+    std::cout << c3[i] << "  \n";
+  }
+  std::cout << "\n";
+  cudaFree(a3_d);
+  cudaFree(b3_d);
+  cudaFree(c3_d);
+  delete[] a3;
+  delete[] c3;
+  delete[] b3;
+  fs = t1 - t0;
+  d = std::chrono::duration_cast< std::chrono::milliseconds >( fs );
+  std::cout << fs.count() << "s\n";
+  std::cout << d.count() << "ms\n";
+
   // Task 4 b)
- 
+    std::cout << "\n**************************** \n";
+  std::cout << "Task 4b: \n";
+   t0 = std::chrono::high_resolution_clock::now();
+  N = 128;
+  double *a4 = nullptr;
+  double *b4 = nullptr;
+  double *c4 = nullptr;
+  cudaMallocManaged(&a4,N*sizeof(double));
+  cudaMallocManaged(&b4,N*sizeof(double));
+  cudaMallocManaged(&c4,N*sizeof(double));
+  for (int i =0; i < N; i++){
+    a4[i] = i;
+    b4[i] = 2*i;
+  }
+  dim3 numBlocks4(2);
+  dim3 threadsPerBlock4(32);
+  vector_add<<<numBlocks4,threadsPerBlock4>>>(a4,b4,c4,N);
+  cudaDeviceSynchronize();
+    t1 = std::chrono::high_resolution_clock::now();
+ std::cout << "vector add managed memory result:\n";
+  for (int i = 0; i < N; i++){
+    std::cout << c4[i] << "  \n";
+  }
+  std::cout << "\n";
+  fs = t1 - t0;
+  d = std::chrono::duration_cast< std::chrono::milliseconds >( fs );
+  std::cout << fs.count() << "s\n";
+  std::cout << d.count() << "ms\n";
+  cudaFree(a4);
+  cudaFree(b4);
+  cudaFree(c4);
   EXIT_SUCCESS;
 }

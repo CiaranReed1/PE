@@ -3,3 +3,5 @@ For task 1: I print the max number of threads per block and the max number of th
 
 For task 2: I used "row major ordering?" to calculate the global index. I.e i used the thread idx + the y index multiplied by the y dimension to loop through rows in the grid one by one assiging the index. 
 does it matter which dimension to use as the base? 
+
+For task 5: My understanding is that kernel calls do not block the CPU. therefore you must wait for the cudaDeviceSynchronise to return to ensure the GPU is finished. Thus we are not measureing pure gpu execution time but the host walltime including the overhead of launching and closing the kernel. 
