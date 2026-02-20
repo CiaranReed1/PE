@@ -13,7 +13,7 @@ module load cuda/12.0
 nvcc timing.cu -o timing
 
 # Header
-echo "N task3(s) task4a(s) task4b(s)" > results.dat
+echo "N task3 task4-a task4-b" > results.dat
 
 # Loop over problem sizes
 for size in 64 128 256 512 1024 2048 4096 8192 16384 32768
