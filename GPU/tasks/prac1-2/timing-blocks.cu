@@ -99,8 +99,9 @@ __global__ void scalar_mul(double *v, double *w, double a) {
 
 int main(int argc, char **argv) {
   int N = 4096;
+  int blocks = 1;
 	if (argc>1){
-int blocks = atoi(argv[1]);
+  blocks = atoi(argv[1]);
 }
   double *a = new double[N];
   double *b = new double[N];
@@ -114,8 +115,8 @@ int blocks = atoi(argv[1]);
   cudaMemcpy(a_d, a, sizeof(double) * N, cudaMemcpyHostToDevice);
   cudaMemcpy(b_d, b, sizeof(double) * N, cudaMemcpyHostToDevice);
 
-  dim3 numBlocks(1);
-  dim3 threadsPerBlock(N);
+  dim3 numBlocks(blocks);
+  dim3 threadsPerBlock(32);
   scalar_mul<<<numBlocks, threadsPerBlock>>>(a_d, b_d, 5);
   cudaMemcpy(b, b_d, sizeof(double) * N, cudaMemcpyDeviceToHost);
   //std::cout << "scalar_mul result:\n";
