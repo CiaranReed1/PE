@@ -4,7 +4,7 @@
 #SBATCH -p tpg-gpu-small
 #SBATCH --qos=debug
 #SBATCH --mem=5G
-#SBATCH -t 02-00:00:00
+#SBATCH -t 00-00:10:00
 #SBATCH --gres=gpu:pascal:1
 
 module load cuda/12.0
@@ -13,10 +13,11 @@ module load cuda/12.0
 nvcc timing.cu -o timing
 
 # Header
-echo "N task3 task4a task4b" > results.dat
+echo "N task3(s) task4a(s) task4b(s)" > results.dat
 
 # Loop over problem sizes
 for size in 64 128 256 512 1024 2048 4096 8192 16384 32768
 do
     ./timing "$size" >> results.dat
 done
+rm timing

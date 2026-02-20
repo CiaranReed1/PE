@@ -261,7 +261,7 @@ std::cout << N << " ";
   //std::cout << "\n";
   fs = t1 - t0;
   d = std::chrono::duration_cast< std::chrono::milliseconds >( fs );
-  std::cout << fs.count() << " ";
+  std::cout << fs.count() << " \n";
   cudaFree(a4);
   cudaFree(b4);
   cudaFree(c4);
