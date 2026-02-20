@@ -1,0 +1,48 @@
+Questions:
+For task 1: I print the max number of threads per block and the max number of threads per SM (multiprocessor). I expected them to be the same but the latter is double the max per block, why is this?
+
+For task 2: I used "row major ordering?" to calculate the global index. I.e i used the thread idx + the y index multiplied by the y dimension to loop through rows in the grid one by one assiging the index. 
+does it matter which dimension to use as the base? 
+
+For task 5: My understanding is that kernel calls do not block the CPU. therefore you must wait for the cudaDeviceSynchronise to return to ensure the GPU is finished. Thus we are not measureing pure gpu execution time but the host walltime including the overhead of launching and closing the kernel. 
+
+Results:
+
+Task 1:
+Device Name: NVIDIA TITAN Xp
+Clock Frequency: 1582000 kHz
+Number of SMs: 30
+Warp Size: 32
+Max Threads per Block: 1024
+Max Threads per SM (should be same as above?): 2048
+Total gloal memory: 12774539264 bytes
+Total shared memory per block: 49152 bytes
+Total constant memory (device wide): 65536 bytes
+
+Task 2:
+2a)
+using a grid of 3 blocks with 5 threads per block:
+0.000687578s
+0ms
+
+2b)
+using a grid of 3 blocks with (4x4 threads per block):
+0.00174855s
+1ms
+
+Task 3:
+Using a vector size of 256, a grid of 2 blocks each with 32 threads, (thus a stride of 64):
+0.000532692s
+0ms
+
+Task 4:
+4a)
+Using a vector size of 128, a grid of 2 blocks each with 32 threads. The manual memory managed result: 
+0.000481411s
+0ms
+4b)
+Using same config as above, with unified memory:
+0.00116789s
+1ms
+
+Thus the unified memory is notably slower. 
