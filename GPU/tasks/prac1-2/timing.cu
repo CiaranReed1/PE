@@ -162,10 +162,9 @@ N = atoi(argv[1]);
   //std::cout << d.count() << "ms\n";
   
 //Setting N for next tasks:
-std::cout << "\n N = " << N << "\n";
+std::cout << N;
   // Task 3
-  std::cout << "\n**************************** \n";
-  std::cout << "Task 3: \n";
+
    t0 = std::chrono::high_resolution_clock::now();
  
   double *a2 = new double[N];
@@ -193,15 +192,13 @@ std::cout << "\n N = " << N << "\n";
   //std::cout << "\n";
   fs = t1 - t0;
   d = std::chrono::duration_cast< std::chrono::milliseconds >( fs );
-  std::cout << fs.count() << "s\n";
-  std::cout << d.count() << "ms\n";
+  std::cout << fs.count();
   cudaFree(a2_d);
   cudaFree(b2_d);
   delete[] a2;
   delete[] b2;
   // Task 4 a)
-  std::cout << "\n**************************** \n";
-  std::cout << "Task 4a: \n";
+
    t0 = std::chrono::high_resolution_clock::now();
   double *a3 = new double[N];
   double *b3 = new double[N];
@@ -238,11 +235,9 @@ std::cout << "\n N = " << N << "\n";
   fs = t1 - t0;
   d = std::chrono::duration_cast< std::chrono::milliseconds >( fs );
   std::cout << fs.count() << "s\n";
-  std::cout << d.count() << "ms\n";
 
   // Task 4 b)
-    std::cout << "\n**************************** \n";
-  std::cout << "Task 4b: \n";
+   
    t0 = std::chrono::high_resolution_clock::now();
   double *a4 = nullptr;
   double *b4 = nullptr;
@@ -267,7 +262,6 @@ std::cout << "\n N = " << N << "\n";
   fs = t1 - t0;
   d = std::chrono::duration_cast< std::chrono::milliseconds >( fs );
   std::cout << fs.count() << "s\n";
-  std::cout << d.count() << "ms\n";
   cudaFree(a4);
   cudaFree(b4);
   cudaFree(c4);
