@@ -162,7 +162,7 @@ N = atoi(argv[1]);
   //std::cout << d.count() << "ms\n";
   
 //Setting N for next tasks:
-std::cout << N;
+std::cout << N << " ";
   // Task 3
 
    t0 = std::chrono::high_resolution_clock::now();
@@ -192,7 +192,7 @@ std::cout << N;
   //std::cout << "\n";
   fs = t1 - t0;
   d = std::chrono::duration_cast< std::chrono::milliseconds >( fs );
-  std::cout << fs.count();
+  std::cout << fs.count() << " ";
   cudaFree(a2_d);
   cudaFree(b2_d);
   delete[] a2;
@@ -234,7 +234,7 @@ std::cout << N;
   delete[] b3;
   fs = t1 - t0;
   d = std::chrono::duration_cast< std::chrono::milliseconds >( fs );
-  std::cout << fs.count() << "s\n";
+  std::cout << fs.count() << " ";
 
   // Task 4 b)
    
@@ -261,7 +261,7 @@ std::cout << N;
   //std::cout << "\n";
   fs = t1 - t0;
   d = std::chrono::duration_cast< std::chrono::milliseconds >( fs );
-  std::cout << fs.count() << "s\n";
+  std::cout << fs.count() << " ";
   cudaFree(a4);
   cudaFree(b4);
   cudaFree(c4);
