@@ -163,7 +163,7 @@ int main(int argc, char **argv) {
   //std::cout << d.count() << "ms\n";
   
 //Setting N for next tasks:
-std::cout << N << " ";
+std::cout << blocks << " ";
   // Task 3
 
    t0 = std::chrono::high_resolution_clock::now();
