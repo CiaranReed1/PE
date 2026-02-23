@@ -20,7 +20,7 @@ __global__ void multi_vector_addition_shmem(const int N,const double* vector, do
 {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
-  __shared__ double s_v[16]; //this assumes the block size will be fixed at 16 x 16 (not necessarily 16 for the y dim but definitely the x)
+  __shared__ double s_v[32]; //this assumes the block size will be fixed at 32 x 32 (not necessarily 16 for the y dim but definitely the x)
   if (x< N){
   s_v[threadIdx.x] = vector[x];
   }
@@ -122,7 +122,7 @@ int main(int argc, char **argv) {
   cudaMemcpy(v_d, v, sizeof(double) * N, cudaMemcpyHostToDevice);
   cudaMemcpy(M_d, M, sizeof(double) * N*N, cudaMemcpyHostToDevice);
 
-  dim3 block(16, 16); //256 block size (hard coded, we actually want this to be at the max ideally )
+  dim3 block(32, 32); //256 block size (hard coded, we actually want this to be at the max ideally )
   dim3 grid((N + block.x - 1) / block.x,
           (N + block.y - 1) / block.y);  //enough blocks to cover the grid
   t0 = std::chrono::high_resolution_clock::now();
@@ -178,6 +178,7 @@ int main(int argc, char **argv) {
 
 
   //my intution actually says that in order to maximise the shared memory util we need tall, skinny blocks, and ideally with x*y = 1024
+  //but my initial testing revealed that this was about half as fast as just using square blocks
 int max_threads = 1024;
 int b_y;
 
