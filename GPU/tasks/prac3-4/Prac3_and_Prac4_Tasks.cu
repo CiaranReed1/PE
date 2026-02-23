@@ -6,7 +6,7 @@
 // b) Use CUDA's static shared memory to improve the runtime of the multi_vector_addition(...) kernel. Which data should be stored in shared memory and why? 
 // c) Adjust your programme such that the user can specify the size N at runtime. Remember to adjust the grid and block size accordingly.
 
-__global__ void multi_vector_addition(int N,const double* vector, double* matrix)
+__global__ void multi_vector_addition(const int N,const double* vector, double* matrix)
 {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -16,9 +16,18 @@ __global__ void multi_vector_addition(int N,const double* vector, double* matrix
 }
 
 
-__global__ void multi_vector_addition_shmem(double* vector, double* matrix)
+__global__ void multi_vector_addition_shmem(const int N,const double* vector, double* matrix)
 {
-	printf("TODO");
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+  __shared__ double s_v[16]; //this assumes the block x cannot be larger than 16 
+  if (x< N){
+  s_v[threadIdx.x] = vector[x];
+  }
+__syncthreads();
+  if (x < N && y < N){
+  matrix[y*N+ x] = matrix[y*N + x] + s_v[threadIdx.x];
+}
 }
 
 __global__ void multi_vector_addition_dynamic_shmem(double* vector, double* matrix)
@@ -69,7 +78,7 @@ int f_d(const int a, const int b, const int c) {
 //----- Code Template -----//
 
 int main(int argc, char **argv) {
-  //----- Task 1 -----//
+  //----- Task 1 a -----//
   //Uncomment to activate helper code to retrieve N as commandline parameter in Task 1 c):
   int N;
   if (argc == 2)
@@ -102,18 +111,40 @@ int main(int argc, char **argv) {
   dim3 block(16, 16); //256 block size
   dim3 grid((N + block.x - 1) / block.x,
           (N + block.y - 1) / block.y);  //enough blocks to cover the grid
-          
+
   multi_vector_addition<<<grid,block>>>(N,v_d,M_d);
   cudaDeviceSynchronize();
   cudaMemcpy(M,M_d,sizeof(double)*N*N,cudaMemcpyDeviceToHost);
+  std::cout << "1a Results: \n";
   for (int i =0; i< N*N;i++){
     std::cout << M[i] << "\n";
   }
 
-  delete[] v;
-  delete[] M;
-  cudaFree(v_d);
-  cudaFree(M_d);
+  // delete[] v;
+  // delete[] M;
+  // cudaFree(v_d);
+  // cudaFree(M_d);
+
+  //task 1b
+
+   for (int i = 0; i < N*N; i++){
+    if (i < N){
+      v[i] = i;
+    }
+    M[i] = i;
+  }
+  cudaMemcpy(v_d, v, sizeof(double) * N, cudaMemcpyHostToDevice);
+  cudaMemcpy(M_d, M, sizeof(double) * N*N, cudaMemcpyHostToDevice); //resetting the vectors/matrices
+   multi_vector_addition_shmem<<<grid,block>>>(N,v_d,M_d);
+  cudaDeviceSynchronize();
+  cudaMemcpy(M,M_d,sizeof(double)*N*N,cudaMemcpyDeviceToHost);
+  std::cout << "1b Results : \n";
+  for (int i =0; i< N*N;i++){
+    std::cout << M[i] << "\n";
+  }
+
+  //static memory task so we will use
+  int N_1b = 32;
 
 
   //----- Task 2 -----//
@@ -121,7 +152,7 @@ int main(int argc, char **argv) {
   int x = f_b(2);
   int y = f_c(3);
   int z = f_d(w,x,y);
-  std::cout << z << "\n";
+  std::cout << "Task 3 z = "<< z << "\n";
 
   //----- Task 4 -----//
 
