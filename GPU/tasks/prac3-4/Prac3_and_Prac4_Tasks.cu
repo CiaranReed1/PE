@@ -20,7 +20,7 @@ __global__ void multi_vector_addition_shmem(const int N,const double* vector, do
 {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
-  __shared__ double s_v[16]; //this assumes the block x cannot be larger than 16 
+  __shared__ double s_v[16]; //this assumes the block size will be fixed at 16 x 16 (not necessarily 16 for the y dim but definitely the x)
   if (x< N){
   s_v[threadIdx.x] = vector[x];
   }
@@ -30,9 +30,18 @@ __syncthreads();
 }
 }
 
-__global__ void multi_vector_addition_dynamic_shmem(double* vector, double* matrix)
+__global__ void multi_vector_addition_dynamic_shmem(const int N, const double* vector, double* matrix)
 {
-	printf("TODO");
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+  extern __shared__ float s_v[]; //now the blocks can be larger (up to 32 x 32) we want the blocks to be as big as possible to improve shared memory utilisation
+  if (x< N){
+    s_v[threadIdx.x] = vector[x];
+  }
+  __syncthreads();
+  if (x < N && y < N){
+  matrix[y*N+ x] = matrix[y*N + x] + s_v[threadIdx.x];
+}
 }
 
 //----- Task 2 -----//
@@ -108,7 +117,7 @@ int main(int argc, char **argv) {
   cudaMemcpy(v_d, v, sizeof(double) * N, cudaMemcpyHostToDevice);
   cudaMemcpy(M_d, M, sizeof(double) * N*N, cudaMemcpyHostToDevice);
 
-  dim3 block(16, 16); //256 block size
+  dim3 block(16, 16); //256 block size (hard coded, we actually want this to be at the max ideally )
   dim3 grid((N + block.x - 1) / block.x,
           (N + block.y - 1) / block.y);  //enough blocks to cover the grid
 
@@ -119,6 +128,7 @@ int main(int argc, char **argv) {
   for (int i =0; i< N*N;i++){
     std::cout << M[i] << "\n";
   }
+  std::cout<<"\n";
 
   // delete[] v;
   // delete[] M;
@@ -142,9 +152,49 @@ int main(int argc, char **argv) {
   for (int i =0; i< N*N;i++){
     std::cout << M[i] << "\n";
   }
+  std::cout<< "\n";
 
-  //static memory task so we will use
-  int N_1b = 32;
+  //task 1c
+  for (int i = 0; i < N*N; i++){
+    if (i < N){
+      v[i] = i;
+    }
+    M[i] = i;
+  }
+  cudaMemcpy(v_d, v, sizeof(double) * N, cudaMemcpyHostToDevice);
+  cudaMemcpy(M_d, M, sizeof(double) * N*N, cudaMemcpyHostToDevice); //resetting the vectors/matrices
+
+
+  //my intution actually says that in order to maximise the shared memory util we need tall, skinny blocks, and ideally with x*y = 1024
+int max_threads = 1024;
+int b_y;
+
+// Step 1: pick block.y
+if (N >= 512)
+    b_y = 512;  // tall blocks
+else if (N >= 128)
+    b_y = 128;
+else if (N >= 64)
+    b_y = 64;
+else
+    b_y = 32;   // for very small N, just use N
+
+// Step 2: pick block.x to not exceed max threads
+int b_x = max_threads / b_y;
+
+  dim3 block_dynam(b_x, b_y);
+  dim3 grid_dynam((N + block_dynam.x - 1) / block_dynam.x,
+          (N + block_dynam.y - 1) / block_dynam.y);  //enough blocks to cover the grid
+  multi_vector_addition_dynamic_shmem<<<grid_dynam,block_dynam,b_x*sizeof(double)>>>(N,v_d,M_d);
+  cudaDeviceSynchronize();
+  cudaMemcpy(M,M_d,sizeof(double)*N*N,cudaMemcpyDeviceToHost);
+  std::cout << "1c Results : \n";
+  for (int i =0; i< N*N;i++){
+    std::cout << M[i] << "\n";
+  }
+  std::cout<< "\n";
+
+
 
 
   //----- Task 2 -----//
