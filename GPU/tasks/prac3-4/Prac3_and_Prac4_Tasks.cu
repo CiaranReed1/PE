@@ -6,10 +6,15 @@
 // b) Use CUDA's static shared memory to improve the runtime of the multi_vector_addition(...) kernel. Which data should be stored in shared memory and why? 
 // c) Adjust your programme such that the user can specify the size N at runtime. Remember to adjust the grid and block size accordingly.
 
-__global__ void multi_vector_addition(double* vector, double* matrix)
+__global__ void multi_vector_addition(int N, double* vector, double* matrix)
 {
-	printf("TODO");
+  int x = blockIdx.x * blockDim.x + threadIdx.x;
+  int y = blockIdx.y * blockDim.y + threadIdx.y;
+  if (x < N && y < N){
+  matrix[y*N+ x] = matrix[y*N + x] + vector[x];
+  }
 }
+
 
 __global__ void multi_vector_addition_shmem(double* vector, double* matrix)
 {
@@ -65,18 +70,43 @@ int f_d(const int a, const int b, const int c) {
 
 int main(int argc, char **argv) {
   //----- Task 1 -----//
-  // Uncomment to activate helper code to retrieve N as commandline parameter in Task 1 c):
-  // int N;
-  // if (argc == 2)
-  // {
-  //  N = std::stoi(argv[1]);
-  // } else 
-  // {
-  // std::cout << "Error: Missing problem size N. Please provide N as "
-  //               "commandline parameter."
-  //            << std::endl;
-  //  exit(0);
-  // }
+  //Uncomment to activate helper code to retrieve N as commandline parameter in Task 1 c):
+  int N;
+  if (argc == 2)
+  {
+   N = std::stoi(argv[1]);
+  } else 
+  {
+  std::cout << "Error: Missing problem size N. Please provide N as "
+                "commandline parameter."
+             << std::endl;
+   exit(0);
+  }
+
+  double *v = new double[N];
+  double *M = new double[N*N];
+
+  for (int i = 0; i < N*N; i++){
+    if (i < N){
+      v[i] = i;
+    }
+    M[i] = i;
+  }
+
+  double *v_d, *M_d;
+  cudaMalloc((void **)&v_d, sizeof(double) * N);
+  cudaMalloc((void **)&M_d, sizeof(double) * N*N);
+  cudaMemcpy(v_d, v, sizeof(double) * N, cudaMemcpyHostToDevice);
+  cudaMemcpy(M_d, M, sizeof(double) * N*N, cudaMemcpyHostToDevice);
+
+  dim3 grid(1,1);
+  dim3 block(N,N);
+  multi_vector_addition<<<grid,block>>>(N,v_d,M_d);
+  cudaMemcpy(M,M_d,sizeof(double)*N*N,cudaMemcpyDeviceToHost);
+  for (int i =0; i< N*N;i++){
+    std::cout << M[i] << "\n";
+  }
+
 
   //----- Task 2 -----//
   int w = f_a(1);
