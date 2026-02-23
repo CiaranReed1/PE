@@ -211,7 +211,10 @@ int b_x = max_threads / b_y;
   std::cout<< "\n";
 
 
-
+  delete[] v;
+  delete[] M;
+  cudaFree(v_d);
+  cudaFree(M_d);
 
   //----- Task 2 -----//
   int w = f_a(1);
