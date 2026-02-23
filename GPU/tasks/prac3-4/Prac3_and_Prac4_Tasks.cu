@@ -1,5 +1,5 @@
 #include<iostream>
-
+#include<chrono>
 //----- Task 1 -----//
 // a) Write a CUDA programme that adds the elements of a vector with N elements to each row of a matrix with NxN elements. For this purpose,
 //    write a CUDA kernel multi_vector_addition(...) that takes a vector of N doubles and a matrix of NxN doubles as input. You can assume that there are as many threads as elements in the matrix. 
@@ -87,6 +87,11 @@ int f_d(const int a, const int b, const int c) {
 //----- Code Template -----//
 
 int main(int argc, char **argv) {
+
+  auto t0 = std::chrono::high_resolution_clock::now();
+  auto t1 = std::chrono::high_resolution_clock::now();
+  std::chrono::duration< double > fs = t1 - t0;
+  std::chrono::milliseconds d = std::chrono::duration_cast< std::chrono::milliseconds >( fs );
   //----- Task 1 a -----//
   //Uncomment to activate helper code to retrieve N as commandline parameter in Task 1 c):
   int N;
@@ -120,15 +125,18 @@ int main(int argc, char **argv) {
   dim3 block(16, 16); //256 block size (hard coded, we actually want this to be at the max ideally )
   dim3 grid((N + block.x - 1) / block.x,
           (N + block.y - 1) / block.y);  //enough blocks to cover the grid
-
+  t0 = std::chrono::high_resolution_clock::now();
   multi_vector_addition<<<grid,block>>>(N,v_d,M_d);
   cudaDeviceSynchronize();
+  t1 =std::chrono::high_resolution_clock::now();
   cudaMemcpy(M,M_d,sizeof(double)*N*N,cudaMemcpyDeviceToHost);
   std::cout << "1a Results: \n";
-  for (int i =0; i< N*N;i++){
-    std::cout << M[i] << "\n";
-  }
-  std::cout<<"\n";
+  // for (int i =0; i< N*N;i++){
+  //   std::cout << M[i] << "\n";
+  // }
+  fs = t1 - t0;
+  std::cout<< fs.count() << " (s)\n";
+  std::cout<< "\n";
 
   // delete[] v;
   // delete[] M;
@@ -145,13 +153,17 @@ int main(int argc, char **argv) {
   }
   cudaMemcpy(v_d, v, sizeof(double) * N, cudaMemcpyHostToDevice);
   cudaMemcpy(M_d, M, sizeof(double) * N*N, cudaMemcpyHostToDevice); //resetting the vectors/matrices
-   multi_vector_addition_shmem<<<grid,block>>>(N,v_d,M_d);
+  t0 = std::chrono::high_resolution_clock::now();
+  multi_vector_addition_shmem<<<grid,block>>>(N,v_d,M_d);
   cudaDeviceSynchronize();
+  t1 = std::chrono::high_resolution_clock::now();
   cudaMemcpy(M,M_d,sizeof(double)*N*N,cudaMemcpyDeviceToHost);
   std::cout << "1b Results : \n";
-  for (int i =0; i< N*N;i++){
-    std::cout << M[i] << "\n";
-  }
+  // for (int i =0; i< N*N;i++){
+  //   std::cout << M[i] << "\n";
+  // }
+   fs = t1 - t0;
+  std::cout<< fs.count() << " (s)\n";
   std::cout<< "\n";
 
   //task 1c
@@ -169,7 +181,6 @@ int main(int argc, char **argv) {
 int max_threads = 1024;
 int b_y;
 
-// Step 1: pick block.y
 if (N >= 512)
     b_y = 512;  // tall blocks
 else if (N >= 128)
@@ -179,19 +190,23 @@ else if (N >= 64)
 else
     b_y = 32;   // for very small N, just use N
 
-// Step 2: pick block.x to not exceed max threads
+
 int b_x = max_threads / b_y;
 
   dim3 block_dynam(b_x, b_y);
   dim3 grid_dynam((N + block_dynam.x - 1) / block_dynam.x,
           (N + block_dynam.y - 1) / block_dynam.y);  //enough blocks to cover the grid
+  t0 = std::chrono::high_resolution_clock::now();
   multi_vector_addition_dynamic_shmem<<<grid_dynam,block_dynam,b_x*sizeof(double)>>>(N,v_d,M_d);
   cudaDeviceSynchronize();
+  t1 = std::chrono::high_resolution_clock::now();
   cudaMemcpy(M,M_d,sizeof(double)*N*N,cudaMemcpyDeviceToHost);
   std::cout << "1c Results : \n";
-  for (int i =0; i< N*N;i++){
-    std::cout << M[i] << "\n";
-  }
+  // for (int i =0; i< N*N;i++){
+  //   std::cout << M[i] << "\n";
+  // }
+   fs = t1 - t0;
+  std::cout<< fs.count() << " (s)\n";
   std::cout<< "\n";
 
 
