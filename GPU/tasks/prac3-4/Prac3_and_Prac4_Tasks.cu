@@ -181,14 +181,14 @@ int main(int argc, char **argv) {
 int max_threads = 1024;
 int b_y;
 
-if (N >= 512)
-    b_y = 512;  // tall blocks
-else if (N >= 128)
-    b_y = 128;
-else if (N >= 64)
-    b_y = 64;
-else
-    b_y = 32;   // for very small N, just use N
+// if (N >= 512)
+//     b_y = 512;  // tall blocks
+// else if (N >= 128)
+//     b_y = 128;
+// else if (N >= 64)
+//     b_y = 64;
+// else
+  b_y = 32;   // for very small N, just use N
 
 
 int b_x = max_threads / b_y;
