@@ -6,7 +6,7 @@
 // b) Use CUDA's static shared memory to improve the runtime of the multi_vector_addition(...) kernel. Which data should be stored in shared memory and why? 
 // c) Adjust your programme such that the user can specify the size N at runtime. Remember to adjust the grid and block size accordingly.
 
-__global__ void multi_vector_addition(int N, double* vector, double* matrix)
+__global__ void multi_vector_addition(int N,const double* vector, double* matrix)
 {
   int x = blockIdx.x * blockDim.x + threadIdx.x;
   int y = blockIdx.y * blockDim.y + threadIdx.y;
@@ -99,13 +99,21 @@ int main(int argc, char **argv) {
   cudaMemcpy(v_d, v, sizeof(double) * N, cudaMemcpyHostToDevice);
   cudaMemcpy(M_d, M, sizeof(double) * N*N, cudaMemcpyHostToDevice);
 
-  dim3 grid(1,1);
-  dim3 block(N,N);
+  dim3 block(16, 16); //256 block size
+  dim3 grid((N + block.x - 1) / block.x,
+          (N + block.y - 1) / block.y);  //enough blocks to cover the grid
+          
   multi_vector_addition<<<grid,block>>>(N,v_d,M_d);
+  cudaDeviceSynchronize();
   cudaMemcpy(M,M_d,sizeof(double)*N*N,cudaMemcpyDeviceToHost);
   for (int i =0; i< N*N;i++){
     std::cout << M[i] << "\n";
   }
+
+  delete[] v;
+  delete[] M;
+  cudaFree(v_d);
+  cudaFree(M_d);
 
 
   //----- Task 2 -----//
