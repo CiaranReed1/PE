@@ -28,7 +28,6 @@
 void multi_vector_addition_CPU(const int N, double *vector, double *matrix) {
 
   int i,j;
-  OMP_SET_NUM_THREADS(4);
   #pragma omp parallel default(none) shared(matrix, vector,N) private(i,j)
   {
     int thread_id = omp_get_thread_num();
