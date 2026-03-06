@@ -28,11 +28,11 @@
 void multi_vector_addition_CPU(const int N, double *vector, double *matrix) {
 
   int i,j;
-  #pragma omp parallel for default(none) shared(matrix, vector,N) private(i,j)
+  #pragma omp parallel default(none) shared(matrix, vector,N) private(i,j)
   {
     int thread_id = omp_get_thread_num();
-    std::cout<< "Runing on CPU, hello from thread "<< thread_id << "\n"
-
+    std::cout<< "Runing on CPU, hello from thread "<< thread_id << "\n";
+    #pragma omp for
     for(i = 0; i<N; i++){
       for(j = 0; j < N; j++)
       {
@@ -183,9 +183,9 @@ int main(int argc, char **argv) {
   std::cout << "On the CPU this took : ";
   std::cout << duration.count() << "s\n"; 
 
-  t0 = std::chrono::high_resolution_clock::now();
+  t0 = high_resolution_clock::now();
   multi_vector_addition_GPU(N,vector, matrix);
-  t1 = std::chrono:high_resolution_clock::now();
+  t1 = high_resolution_clock::now();
   duration = t1 - t0;
 
   std::cout << "OpenMP GPU result: \n";
