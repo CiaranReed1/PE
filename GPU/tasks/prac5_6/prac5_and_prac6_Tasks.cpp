@@ -56,23 +56,24 @@ void multi_vector_addition_GPU(const int N, double *vector, double *matrix) {
       int num_teams = omp_get_num_teams();
       int team_id = omp_get_team_num();
       printf("Hello from GPU, team %d out of %d\n",team_id,num_teams);
-      #pragma omp parallel
+      
+      #pragma omp parallel 
       {
         int thread_id = omp_get_thread_num();
         int num_threads = omp_get_num_threads();
         if (thread_id == 0){
         printf("Team %d has %d threads\n", team_id, num_threads);
         }
+      }
 
-      #pragma omp distribute  
+      #pragma omp distribute 
       for(i = 0; i<N; i++)
       {
-        #pragma omp for
+        #pragma omp parallel for 
         for(j = 0; j < N; j++)
           {
             matrix[i*N + j] += vector[j];
           }
-        } 
       }
       
     }
