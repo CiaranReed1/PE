@@ -2,7 +2,6 @@
 #include <iostream>
 #include <omp.h>
 
-#define N 20000
 
 //----- Task 1 -----//
 // a) Write an OpenMP CPU programme that adds the elements of a vector with N
@@ -26,13 +25,19 @@
 // d) Which version of the function runs faster? What could be the reason for
 //    this?
 
-void multi_vector_addition_CPU(double *vector, double *matrix) {
+void multi_vector_addition_CPU(const int N, double *vector, double *matrix) {
 
-  std::cout << "TODO"
-            << "\n";
+  int i,j;
+  #pragma omp parallel for default(none) shared(matrix, vector,N) private(i,j)
+  for(i = 0; i<N; i++){
+    for(j = 0; j < N; j++)
+    {
+      matrix[i*N + j] += vector[j];
+    }
+  }
 }
 
-void multi_vector_addition_GPU(double *vector, double *matrix) {
+void multi_vector_addition_GPU(const int N, double *vector, double *matrix) {
   std::cout << "TODO"
             << "\n";
 }
@@ -47,7 +52,7 @@ void multi_vector_addition_GPU(double *vector, double *matrix) {
 //      executed concurrently on the GPU. Make use of OpenMP's reduction clause to adjust the code in f_a_gpu,
 //      f_b_gpu and f_c_gpu accordingly.
 
-void f_a(double *a, double *res) {
+void f_a(const int N,double *a, double *res) {
   double acc = 0;
   for (int i = 0; i < N; i++) {
     acc += a[i];
@@ -55,7 +60,7 @@ void f_a(double *a, double *res) {
   *res = acc;
 }
 
-void f_b(double *b, double *res) {
+void f_b(const int N, double *b, double *res) {
   double acc = 0;
   for (int i = 0; i < N; i++) {
     acc += b[i];
@@ -63,7 +68,7 @@ void f_b(double *b, double *res) {
   *res = acc;
 }
 
-void f_c(double *c, double *res) {
+void f_c(const int N, double *c, double *res) {
   double acc = 0;
   for (int i = 0; i < N; i++) {
     acc += c[i];
@@ -73,7 +78,7 @@ void f_c(double *c, double *res) {
 
 void f_d(double a, double b, double c, double *res) { *res = a + b + c; }
 
-void f_a_gpu(double *a, double *res) {
+void f_a_gpu(const int N, double *a, double *res) {
   double acc = 0;
   for (int i = 0; i < N; i++) {
     acc += a[i];
@@ -81,7 +86,7 @@ void f_a_gpu(double *a, double *res) {
   *res = acc;
 }
 
-void f_b_gpu(double *b, double *res) {
+void f_b_gpu(const int N, double *b, double *res) {
   double acc = 0;
   for (int i = 0; i < N; i++) {
     acc += b[i];
@@ -89,7 +94,7 @@ void f_b_gpu(double *b, double *res) {
   *res = acc;
 }
 
-void f_c_gpu(double *c, double *res) {
+void f_c_gpu(const int N, double *c, double *res) {
   double acc = 0;
   for (int i = 0; i < N; i++) {
     acc += c[i];
@@ -102,16 +107,18 @@ void f_c_gpu(double *c, double *res) {
 int main(int argc, char **argv) {
   //----- Task 1 -----//
   // Uncomment to activate helper code to retrieve N as commandline parameter if
-  // you so wishs: int N; if (argc == 2)
-  // {
-  //  N = std::stoi(argv[1]);
-  // } else
-  // {
-  // std::cout << "Error: Missing problem size N. Please provide N as "
-  //               "commandline parameter."
-  //            << std::endl;
-  //  exit(0);
-  // }
+  // you so wishs:
+  int N; 
+  if (argc == 2)
+  {
+   N = std::stoi(argv[1]);
+  } else
+  {
+  std::cout << "Error: Missing problem size N. Please provide N as "
+                "commandline parameter."
+             << std::endl;
+   exit(0);
+  }
 
   double *vector = new double[N];
   double *matrix = new double[N * N];
@@ -124,7 +131,7 @@ int main(int argc, char **argv) {
     matrix[i] = 1;
   }
 
-  multi_vector_addition_CPU(vector, matrix);
+  multi_vector_addition_CPU(N,vector, matrix);
 
   std::cout << "OpenMP CPU result: \n";
   for (int i = 0; i < 10; i++) {
@@ -134,7 +141,7 @@ int main(int argc, char **argv) {
     std::cout << "\n";
   }
 
-  multi_vector_addition_GPU(vector, matrix);
+  multi_vector_addition_GPU(N,vector, matrix);
 
   std::cout << "OpenMP GPU result: \n";
 
@@ -157,18 +164,18 @@ int main(int argc, char **argv) {
   }
   double w, x, y, z;
 
-  f_a(a, &w);
-  f_b(b, &x);
-  f_c(c, &y);
+  f_a(N,a, &w);
+  f_b(N,b, &x);
+  f_c(N,c, &y);
   f_d(w, x, y, &z);
   std::cout << "The value of z is " << z << "."
             << "\n";
 
   //----- Task 2 -----//
   // b)
-  f_a_gpu(a, &w);
-  f_b_gpu(b, &x);
-  f_c_gpu(c, &y);
+  f_a_gpu(N,a, &w);
+  f_b_gpu(N,b, &x);
+  f_c_gpu(N,c, &y);
   f_d(w, x, y, &z);
   std::cout << "The value of z is " << z << "."
             << "\n";
