@@ -178,13 +178,13 @@ int main(int argc, char **argv) {
   
 
   std::cout << "OpenMP CPU result: \n";
-  for (int i = 0; i < 10; i++) {
-    for (int j = 0; j < 10; j++) {
-      std::cout << matrix[i * N + j] << " ";
-    }
-    std::cout << "\n";
-  }
-  std::cout << "On the CPU this took : ";
+  // for (int i = 0; i < 10; i++) {
+  //   for (int j = 0; j < 10; j++) {
+  //     std::cout << matrix[i * N + j] << " ";
+  //   }
+  //   std::cout << "\n";
+  // }
+  // std::cout << "On the CPU this took : ";
   std::cout << duration.count() << "s\n"; 
 
   t0 = std::chrono::high_resolution_clock::now();
@@ -194,13 +194,13 @@ int main(int argc, char **argv) {
   duration = t1 - t0;
 
   std::cout << "OpenMP GPU result: \n";
-  for (int i = 0; i < 10; i++) {
-    for (int j = 0; j < 10; j++) {
-      std::cout << matrix[i * N + j] << " ";
-    }
-    std::cout << "\n";
-  }
-  std::cout << "On the GPU this took : ";
+  // for (int i = 0; i < 10; i++) {
+  //   for (int j = 0; j < 10; j++) {
+  //     std::cout << matrix[i * N + j] << " ";
+  //   }
+  //   std::cout << "\n";
+  // }
+  // std::cout << "On the GPU this took : ";
   std::cout << duration.count() << "s\n"; 
   //----- Task 2 -----//
   // a)
@@ -218,8 +218,8 @@ int main(int argc, char **argv) {
   f_b(N,b, &x);
   f_c(N,c, &y);
   f_d(w, x, y, &z);
-  std::cout << "The value of z is " << z << "."
-            << "\n";
+  // std::cout << "The value of z is " << z << "."
+  //           << "\n";
 
   //----- Task 2 -----//
   // b)
@@ -227,8 +227,8 @@ int main(int argc, char **argv) {
   f_b_gpu(N,b, &x);
   f_c_gpu(N,c, &y);
   f_d(w, x, y, &z);
-  std::cout << "The value of z is " << z << "."
-            << "\n";
+  // std::cout << "The value of z is " << z << "."
+  //           << "\n";
 
   return EXIT_SUCCESS;
 }
