@@ -280,7 +280,7 @@ int b_x = max_threads / b_y;
   cudaMemcpy(b2_d, b2, sizeof(int) *N, cudaMemcpyHostToDevice);
   cudaMemcpy(c2_d, c2, sizeof(int) *N, cudaMemcpyHostToDevice);
 
-  dim3 block2(64);
+  dim3 block2(N);
   dim3 grid2(1);
 
   cudaStream_t s1, s2, s3, s4;
