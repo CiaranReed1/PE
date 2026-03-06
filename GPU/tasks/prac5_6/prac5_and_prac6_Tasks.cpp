@@ -64,7 +64,7 @@ void multi_vector_addition_GPU(const int N, double *vector, double *matrix) {
         #pragma omp single
         printf("Team %d has %d threads\n", team_id, num_threads);
 
-        printf("Hello from thread %d, within team %d\n",thread_id,team_id);
+        //printf("Hello from thread %d, within team %d\n",thread_id,team_id);
         
         #pragma omp for
         for(j = 0; j < N; j++)
