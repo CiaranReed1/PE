@@ -29,17 +29,53 @@ void multi_vector_addition_CPU(const int N, double *vector, double *matrix) {
 
   int i,j;
   #pragma omp parallel for default(none) shared(matrix, vector,N) private(i,j)
-  for(i = 0; i<N; i++){
-    for(j = 0; j < N; j++)
-    {
-      matrix[i*N + j] += vector[j];
+  {
+    int thread_id = omp_get_thread_num();
+    std::cout<< "Runing on CPU, hello from thread "<< thread_id << "\n"
+
+    for(i = 0; i<N; i++){
+      for(j = 0; j < N; j++)
+      {
+        matrix[i*N + j] += vector[j];
+      }
     }
   }
 }
 
 void multi_vector_addition_GPU(const int N, double *vector, double *matrix) {
-  std::cout << "TODO"
-            << "\n";
+  int i,j;
+  #pragma omp target teams default(none) shared(matrix, vector,N) private(i,j) map(to : vector[0:N]) map(tofrom : matrix[0:N*N])
+  {
+    if (omp_is_initial_device()){
+      printf("Running on CPU\n");
+    } else
+    {
+      int num_teams = omp_get_num_teams();
+      int team_id = omp_get_team_num();
+      printf("Hello from GPU, team %d out of %d\n",team_id,num_teams);
+      #pragma omp distribute  
+      for(i = 0; i<N; i++)
+      {
+        #pragma omp parallel 
+        {
+        int thread_id = omp_get_thread_num();
+        int num_threads = omp_get_num_threads();
+
+        #pragma omp single
+        printf("Team %d has %d threads\n", team_id, num_threads);
+
+        printf("Hello from thread %d, within team %d\n",thread_id,team_id);
+        
+        #pragma omp for
+        for(j = 0; j < N; j++)
+          {
+            matrix[i*N + j] += vector[j];
+          }
+        }  
+      }
+      
+    }
+  }
 }
 
 //----- Task 2 -----//
@@ -131,7 +167,11 @@ int main(int argc, char **argv) {
     matrix[i] = 1;
   }
 
+  auto t0 = std::chrono::high_resolution_clock::now();
   multi_vector_addition_CPU(N,vector, matrix);
+  auto t1 = std::chrono::high_resolution_clock::now();
+  std::chrono::duration< double > duration = t1 - t0;
+  
 
   std::cout << "OpenMP CPU result: \n";
   for (int i = 0; i < 10; i++) {
@@ -140,18 +180,23 @@ int main(int argc, char **argv) {
     }
     std::cout << "\n";
   }
+  std::cout << "On the CPU this took : ";
+  std::cout << duration.count() << "s\n"; 
 
+  t0 = std::chrono::high_resolution_clock::now();
   multi_vector_addition_GPU(N,vector, matrix);
+  t1 = std::chrono:high_resolution_clock::now();
+  duration = t1 - t0;
 
   std::cout << "OpenMP GPU result: \n";
-
   for (int i = 0; i < 10; i++) {
     for (int j = 0; j < 10; j++) {
       std::cout << matrix[i * N + j] << " ";
     }
     std::cout << "\n";
   }
-
+  std::cout << "On the GPU this took : ";
+  std::cout << duration.count() << "s\n"; 
   //----- Task 2 -----//
   // a)
   double *a = new double[N];
