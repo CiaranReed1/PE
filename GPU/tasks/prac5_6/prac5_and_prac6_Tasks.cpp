@@ -183,9 +183,10 @@ int main(int argc, char **argv) {
   std::cout << "On the CPU this took : ";
   std::cout << duration.count() << "s\n"; 
 
-  t0 = now();
+  t0 = std::chrono::high_resolution_clock::now();
   multi_vector_addition_GPU(N,vector, matrix);
-  t1 = now();
+  t1 = std::chrono::high_resolution_clock::now();
+
   duration = t1 - t0;
 
   std::cout << "OpenMP GPU result: \n";
