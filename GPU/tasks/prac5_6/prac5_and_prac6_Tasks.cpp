@@ -31,7 +31,9 @@ void multi_vector_addition_CPU(const int N, double *vector, double *matrix) {
   #pragma omp parallel default(none) shared(matrix, vector,N) private(i,j)
   {
     int thread_id = omp_get_thread_num();
+    #pragma omp critical{
     std::cout<< "Runing on CPU, hello from thread "<< thread_id << "\n";
+    }
     #pragma omp for
     for(i = 0; i<N; i++){
       for(j = 0; j < N; j++)
@@ -61,11 +63,10 @@ void multi_vector_addition_GPU(const int N, double *vector, double *matrix) {
         int thread_id = omp_get_thread_num();
         int num_threads = omp_get_num_threads();
 
-        #pragma omp single
-        {
-          if (i == 0){
+    
+          if (thread_id == 0){
           printf("Team %d has %d threads\n", team_id, num_threads);
-        }
+      
         }
         //printf("Hello from thread %d, within team %d\n",thread_id,team_id);
         
