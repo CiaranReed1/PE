@@ -18,6 +18,16 @@ int main(int argc, char **argv)
   //----- Task 1 -----//
   // Use SYCL to query 5 device properties of your choice.
 
+  auto devices = sycl::device::get_devices();
+  for (auto d : devices){
+    std::cout 
+    << d.get_info<sycl::device::name>() << "\n"
+    << d.get_info<sycl::info::device::vendor>() << "\n"
+    << d.get_info<sycl::info::device::version>() << "\n"
+    <<d.get_info<sycl::info::device::max_compute_units>() << "\n"
+    <<d.get_info<sycl::info::device::global_mem_size>() <<"\n";
+  }
+
   //----- Task 2 -----//
   // a) Write a SYCL programme that implements the element-wise addition of two vectors 
   //    by using the high-level version of the parallel_for kernel invocation API.
