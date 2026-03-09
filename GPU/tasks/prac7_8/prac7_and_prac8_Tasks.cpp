@@ -209,7 +209,7 @@ std::cout << "Running on GPU: "
       sycl::buffer<double,1> acc_buf(&acc_u, 1);
       q.submit([&](sycl::handler& cgh){
        auto u_d = u_buf.get_access<sycl::access::mode::read>(cgh);
-       auto acc_d = acc_buf.get_access<sycl::access::mode::atomic>(cgh);
+       auto acc_d = acc_buf.get_access<sycl::access::mode::read_write>(cgh);
        cgh.parallel_for(
         sycl::range<1>(N),[=](sycl::id<1> i)
         {
