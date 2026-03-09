@@ -99,7 +99,7 @@ int main(int argc, char **argv)
   //task 2c
 
   std::cout<< "\n Task 2c \n";
-  sycl::queue q_cpu{sycl::cpu_selector{}};
+  sycl::queue q_cpu{sycl::host_selector{}};
   std::cout << "Running on CPU: "
             << q_cpu.get_device().get_info<sycl::info::device::name>()
             << "\n";
