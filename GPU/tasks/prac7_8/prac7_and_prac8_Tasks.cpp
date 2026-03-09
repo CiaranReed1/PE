@@ -232,6 +232,12 @@ std::cout << "Running on GPU: "
   // https://developer.codeplay.com/products/computecpp/ce/2.11.0/guides/sycl-guide/multiple-kernels
   // Under the assumption that all of the kernel functions you have written in Tasks 1 to 3 are submitted
   // to the same queue, determine which of them may be executed concurrently.
+
+  //My intuition is that given that they all write to the same z buffer, they will not be able to 
+
+  std::cout << "\n Task 4 \n";
+  std::cout << "My intutio is that given that they all write to the same z variable they will not be able to run concurrently, that being said i redefined the buffers for each kernel so maybe they will try to run concurrently? \n";
+  std::cout << "That being said task 3 depends on completely different variables and buffers so i expect this to be able to run concurrently\n";
   
   return EXIT_SUCCESS;
 
