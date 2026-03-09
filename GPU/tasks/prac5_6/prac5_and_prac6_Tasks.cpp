@@ -213,8 +213,8 @@ int main(int argc, char **argv) {
     c[i] = 1;
   }
   double w, x, y, z;
-  std::cout << "---------------------------\n"
-  std::cout << "Task 2 \n"
+  std::cout << "---------------------------\n";
+  std::cout << "Task 2 \n";
   #pragma omp parallel 
   {
     int thread_id = omp_get_thread_num();
