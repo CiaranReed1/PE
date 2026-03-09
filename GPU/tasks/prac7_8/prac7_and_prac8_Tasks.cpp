@@ -17,7 +17,7 @@ int main(int argc, char **argv)
 
   //----- Task 1 -----//
   // Use SYCL to query 5 device properties of your choice.
-
+  std::cout<<"Task 1 : \n";
   auto devices = sycl::device::get_devices();
   for (auto d : devices){
     std::cout 
@@ -45,7 +45,7 @@ int main(int argc, char **argv)
   for(auto& i : z) i = 0.0;
 
   // a)
-
+  std::cout<<"\n Task 2a : \n";
   sycl::queue q;  
   {
     sycl::buffer<double,1> x_buf(x.data(),x.size());
@@ -70,7 +70,29 @@ int main(int argc, char **argv)
   std::cout << "\n";
 
   // b)
-  
+  sycl::range global{2, 2, 2};
+  sycl::range local{2, 2, 2};
+  sycl::queue q;  
+  {
+    sycl::buffer<double,1> x_buf(x.data(),x.size());
+    sycl::buffer<double,1> y_buf(y.data(),y.size());
+    sycl::buffer<double,1> z_buf(z.data(),z.size());
+    q.submit([&](sycl::handler& cgh)
+    {
+      auto x_d = x_buf.get_access<sycl::access::mode::read>(cgh);
+      auto y_d = y_buf.get_access<sycl::access::mode::read>(cgh);
+      auto z_d = z_buf.get_access<sycl::access::mode::read_write>(cgh);
+      cgh.parallel_for(
+        sycl::range{global,local},[=](sycl::id<3> i)
+        {
+          int j = i.get_global_linear_id();
+          z_d[j] = x_d[j] + y_d[j]; 
+        }
+      );
+    });
+  }
+
+  std::cout <<"\n Task 2b \n";
   std::cout << "Vector addition result: \n";
   for(auto i : z) std::cout << i << " ";
   std::cout << "\n";
