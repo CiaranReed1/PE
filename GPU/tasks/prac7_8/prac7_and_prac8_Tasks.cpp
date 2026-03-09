@@ -202,8 +202,27 @@ std::cout << "Running on GPU: "
   // Please note that clang++ does not support the built-in reduction as proposed by the Intel extensions.
   
   std::vector<double> u(N);
-  for(auto& i : x) i = 1.0;
+  for(auto& i : u) i = 1.0;
   double acc_u = 0;
+  {
+      sycl::buffer<double,1> u_buf(u.data(),u.size());
+      sycl::buffer<double,1> acc_buf(&acc_u, 1);
+      q.submit([&](sycl::handler& cgh){
+       auto u_d = u_buf.get_access<sycl::access::mode::read>(cgh);
+       auto acc_d = acc_buf.get_access<sycl::access::mode::atomic>(cgh);
+       cgh.parallel_for(
+        sycl::range<1>(N),[=](sycl::id<1> i)
+        {
+         sycl::atomic_ref<double, 
+                             sycl::memory_order::relaxed, 
+                             sycl::memory_scope::device,
+                             sycl::access::address_space::global_space> 
+                atomic_acc(acc_d[0]);
+            atomic_acc.fetch_add(u_d[i]);
+        }
+      );
+      }).wait();
+  }
   
   std::cout << "Reduction result:" << "\n";
   std::cout << acc_u << "\n";
