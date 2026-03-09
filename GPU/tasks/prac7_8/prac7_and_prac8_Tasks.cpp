@@ -83,7 +83,7 @@ int main(int argc, char **argv)
       auto y_d = y_buf.get_access<sycl::access::mode::read>(cgh);
       auto z_d = z_buf.get_access<sycl::access::mode::read_write>(cgh);
       cgh.parallel_for(
-        sycl::range{global,local},[=](sycl::id<3> i)
+        sycl::range{global,local},[=](sycl::nd_item<3> i)
         {
           int j = i.get_global_linear_id();
           z_d[j] = x_d[j] + y_d[j]; 
