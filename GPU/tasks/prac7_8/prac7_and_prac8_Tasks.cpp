@@ -167,7 +167,7 @@ std::cout << "Running on GPU: "
       );
     }).wait();
   }
-   std::cout << "Vector addition result (high lvl parallel for) (CPU): \n";
+   std::cout << "Vector addition result (high lvl parallel for) (GPU): \n";
   for(auto i : z) std::cout << i << " ";
   std::cout << "\n";
   {
@@ -188,7 +188,7 @@ std::cout << "Running on GPU: "
       );
     }).wait();
   }
-    std::cout << "Vector addition result (nd range) (CPU): \n";
+    std::cout << "Vector addition result (nd range) (GPU): \n";
   for(auto i : z) std::cout << i << " ";
   std::cout << "\n";
 
@@ -236,8 +236,8 @@ std::cout << "Running on GPU: "
   //My intuition is that given that they all write to the same z buffer, they will not be able to 
 
   std::cout << "\n Task 4 \n";
-  std::cout << "My intutio is that given that they all write to the same z variable they will not be able to run concurrently, that being said i redefined the buffers for each kernel so maybe they will try to run concurrently? \n";
-  std::cout << "That being said task 3 depends on completely different variables and buffers so i expect this to be able to run concurrently\n";
+  std::cout << "My intuition is that given that they all write to the same host variable "z", they will not be able to run concurrently. That being said i redefined the buffers for each kernel, so maybe they will try to run concurrently?Even though they would overwrite the host variable z?\n";
+  std::cout<<"Task 3 depends on completely different variables and buffers so i expect this to be able to run concurrently\n";
   
   return EXIT_SUCCESS;
 
