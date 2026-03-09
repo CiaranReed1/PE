@@ -21,11 +21,11 @@ int main(int argc, char **argv)
   auto devices = sycl::device::get_devices();
   for (auto d : devices){
     std::cout 
-    << d.get_info<sycl::info::device::name>() << "\n"
-    << d.get_info<sycl::info::device::vendor>() << "\n"
-    << d.get_info<sycl::info::device::version>() << "\n"
-    <<d.get_info<sycl::info::device::max_compute_units>() << "\n"
-    <<d.get_info<sycl::info::device::global_mem_size>() <<"\n";
+    << "Name : " << d.get_info<sycl::info::device::name>() << "\n"
+    << "Vendor : "<<d.get_info<sycl::info::device::vendor>() << "\n"
+    << "Version : "<< d.get_info<sycl::info::device::version>() << "\n"
+    << "Max Compute Units : "<<d.get_info<sycl::info::device::max_compute_units>() << "\n"
+    <<"Global mem size : "<<d.get_info<sycl::info::device::global_mem_size>() <<"\n";
   }
 
   //----- Task 2 -----//
