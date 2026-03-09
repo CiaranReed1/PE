@@ -46,7 +46,26 @@ int main(int argc, char **argv)
 
   // a)
 
-  std::cout << "Vector addition result: \n";
+  sycl::queue q;  
+  {
+    sycl::buffer<double,1> x_buf(x.data(),x.size());
+    sycl::buffer<double,1> y_buf(y.data(),y.size());
+    sycl::buffer<double,1> z_buf(z.data(),z.size());
+    q.submit([&](sycl::handler& cgh)
+    {
+      auto x_d = x_buf.get_access<sycl::access::mode::read>(cgh);
+      auto y_d = y_buf.get_access<sycl::access::mode::read>(cgh);
+      auto z_d = z_buf.get_access<sycl::access::mode::read_write>(cgh);
+      cgh.parallel_for(
+        sycl::range<1>(N),[=](sycl::id<1> i)
+        {
+          z_d[i] = x_d[i] + y_d[i]; 
+        }
+      );
+    });
+  }
+
+  std::cout << "Vector addition result (high lvl parallel for): \n";
   for(auto i : z) std::cout << i << " ";
   std::cout << "\n";
 
