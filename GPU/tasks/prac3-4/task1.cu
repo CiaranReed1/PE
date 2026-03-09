@@ -44,52 +44,6 @@ __global__ void multi_vector_addition_dynamic_shmem(const int N, const double* v
 }
 }
 
-//----- Task 2 -----//
-//   Consider the subsequent functions f_a(...), f_b(...), f_c(...), f_d(...) and the data dependencies between their parameters as evident in the main(...) function.
-// a) Draw the task graph that outlines the dependencies between these functions. Each node in the graph is either a function name, or a parameter. Edges are directed
-//    and represent input and output dependencies. Input dependencies 
-// b) Rewrite the functions f_a(...), f_b(...), f_c(...), f_d(...) as CUDA kernels.
-// c) Complying to data dependencies, launch the kernels concurrently by using CUDA streams.
-
-int f_a(const int a) {
-  return a+1;
-}
-
-int f_b(const int b) {
-  return b+1;
-}
-
-int f_c(const int c) {
-  return c+1;
-}
-
-int f_d(const int a, const int b, const int c) {
-  return a+b+c;
-}
-
-__global__ void f_a_cu(const int N, const int *a, int *w) {
-  if (threadIdx.x < N){
-    w[threadIdx.x] = a[threadIdx.x]+1; 
-  }
-}
-
-__global__ void f_b_cu(const int N, const int *b, int *x) {
-   if (threadIdx.x < N){
-    x[threadIdx.x] = b[threadIdx.x]+1; 
-  }
-}
-
-__global__ void f_c_cu(const int N, const int *c,int *y) {
-  if (threadIdx.x < N){
-    y[threadIdx.x] = c[threadIdx.x]+1; 
-  }
-}
-
-__global__ void f_d_cu(const int N, const int *a, const int *b, const int *c, int *z) {
-  if (threadIdx.x < N){
-    z[threadIdx.x] = a[threadIdx.x]+b[threadIdx.x]+c[threadIdx.x];
-  }
-}
 
 // ----- Task 3 -----//
 // Instrument your code with calls to std::chrono to measure the execution times of 
@@ -240,81 +194,7 @@ int b_x = max_threads / b_y;
   cudaFree(v_d);
   cudaFree(M_d);
 
-  //----- Task 2 -----//
-  int w = f_a(1);
-  int x = f_b(2);
-  int y = f_c(3);
-  int z = f_d(w,x,y);
-  std::cout << "Task 3 z = "<< z << "\n";
-
-
-  N = 512;
-
-  int *w2 = new int[N];
-  int *x2 = new int[N];
-  int *y2 = new int[N];
-  int *z2 = new int[N];
-  int *a2 = new int[N];
-  int *b2 = new int[N];
-  int *c2 = new int[N];
-
-  for(int i =0; i<N;i++){
-    a2[i] = 1;
-    b2[i] = 2;
-    c2[i] = 3; 
-    w2[i] = 0;
-    x2[i] = 0;
-    y2[i] = 0;
-    x2[i] = 0;
-  }
-
-  int *w2_d, *x2_d, *y2_d, *z2_d, *a2_d, *b2_d, *c2_d;
-  cudaMalloc((void **)&a2_d, sizeof(int) * N);
-  cudaMalloc((void **)&b2_d, sizeof(int) * N);
-  cudaMalloc((void **)&c2_d, sizeof(int) * N);
-  cudaMalloc((void **)&w2_d, sizeof(int) * N);
-  cudaMalloc((void **)&x2_d, sizeof(int) * N);
-  cudaMalloc((void **)&y2_d, sizeof(int) * N);
-  cudaMalloc((void **)&z2_d, sizeof(int) * N);
-  cudaMemcpy(a2_d, a2, sizeof(int) *N, cudaMemcpyHostToDevice);
-  cudaMemcpy(b2_d, b2, sizeof(int) *N, cudaMemcpyHostToDevice);
-  cudaMemcpy(c2_d, c2, sizeof(int) *N, cudaMemcpyHostToDevice);
-
-  dim3 block2(N);
-  dim3 grid2(1);
-
-  cudaStream_t s1, s2, s3, s4;
-  cudaStreamCreate(&s1);
-  cudaStreamCreate(&s2);
-  cudaStreamCreate(&s3);
-  cudaStreamCreate(&s4);
-
-  cudaEvent_t e1, e2, e3;
-  cudaEventCreate(&e1);
-  cudaEventCreate(&e2);
-  cudaEventCreate(&e3);
-
-  cudaEventRecord(e1, s1);  // fires when kernel_a finishes
-  cudaEventRecord(e2, s2);  // fires when kernel_b finishes
-  cudaEventRecord(e3, s3);  // fires when kernel_c finishes
-
-  f_a_cu<<<grid2,block2,0,s1>>>(N,a2_d,w2_d);
-  f_b_cu<<<grid2,block2,0,s2>>>(N,b2_d,x2_d);
-  f_c_cu<<<grid2,block2,0,s3>>>(N,c2_d,y2_d);
-
-  cudaStreamWaitEvent(s4, e1, 0);
-  cudaStreamWaitEvent(s4, e2, 0);
-  cudaStreamWaitEvent(s4, e3, 0);
-
-  f_d_cu<<<grid2,block2,0,s4>>>(N,w2_d,x2_d,y2_d,z2_d);
-
-  cudaMemcpy(z2, z2_d, sizeof(int) *N, cudaMemcpyDeviceToHost);
-
-  std::cout << "Results from Task 2 Cuda implementation:";
-  for(int i =0; i< N;i++){
-    std::cout << z2[i] << " ";
-  }
-  std::cout << "\n";
+ 
   //----- Task 4 -----//
 
   return EXIT_SUCCESS;
