@@ -120,6 +120,7 @@ void f_d(double a, double b, double c, double *res) { *res = a + b + c; }
 
 void f_a_gpu(const int N, double *a, double *res) {
   double acc = 0;
+  #pragma omp target teams distribute parallel for reduction(+:acc) map(to : a[0:N]) map(tofrom : acc) 
   for (int i = 0; i < N; i++) {
     acc += a[i];
   }
@@ -128,6 +129,7 @@ void f_a_gpu(const int N, double *a, double *res) {
 
 void f_b_gpu(const int N, double *b, double *res) {
   double acc = 0;
+  #pragma omp target teams distribute parallel for reduction(+:acc) map(to : b[0:N]) map(tofrom : acc) 
   for (int i = 0; i < N; i++) {
     acc += b[i];
   }
@@ -136,6 +138,7 @@ void f_b_gpu(const int N, double *b, double *res) {
 
 void f_c_gpu(const int N, double *c, double *res) {
   double acc = 0;
+  #pragma omp target teams distribute parallel for reduction(+:acc) map(to : c[0:N]) map(tofrom : acc) 
   for (int i = 0; i < N; i++) {
     acc += c[i];
   }
@@ -236,12 +239,27 @@ int main(int argc, char **argv) {
 
   //----- Task 2 -----//
   // b)
-  f_a_gpu(N,a, &w);
-  f_b_gpu(N,b, &x);
-  f_c_gpu(N,c, &y);
-  f_d(w, x, y, &z);
-  // std::cout << "The value of z is " << z << "."
-  //           << "\n";
+  #pragma omp parallel
+  {
+    #pragma omp single
+    {
+      #pragma omp task depend(out : w)
+      f_a_gpu(N,a,&w);
+      #pragma omp task depend(out : x)
+      f_b_gpu(N,b,&x);
+      #pragma omp task depend(out : y)
+      f_c_gpu(N,c,&y);
+      #pragma omp task depend(in : w,x,y)
+      f_d(w,x,y,&z);
+    }
+  }
+  std::cout << "The value of z (from b) is " << z << "."
+            << "\n";
 
+  delete[] a;
+  delete[] b;
+  delete[] c;
+
+  
   return EXIT_SUCCESS;
 }
