@@ -71,8 +71,7 @@ int main(int argc, char **argv)
 
   // b)
   sycl::range global{2, 2, 2};
-  sycl::range local{2, 2, 2};
-  sycl::queue q;  
+  sycl::range local{2, 2, 2}; 
   {
     sycl::buffer<double,1> x_buf(x.data(),x.size());
     sycl::buffer<double,1> y_buf(y.data(),y.size());
@@ -83,7 +82,7 @@ int main(int argc, char **argv)
       auto y_d = y_buf.get_access<sycl::access::mode::read>(cgh);
       auto z_d = z_buf.get_access<sycl::access::mode::read_write>(cgh);
       cgh.parallel_for(
-        sycl::range{global,local},[=](sycl::nd_item<3> i)
+        sycl::nd_range{global,local},[=](sycl::nd_item<3> i)
         {
           int j = i.get_global_linear_id();
           z_d[j] = x_d[j] + y_d[j]; 
