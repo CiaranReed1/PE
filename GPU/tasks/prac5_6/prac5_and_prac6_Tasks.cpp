@@ -213,18 +213,24 @@ int main(int argc, char **argv) {
     c[i] = 1;
   }
   double w, x, y, z;
+  std::cout << "---------------------------\n"
+  std::cout << "Task 2 \n"
   #pragma omp parallel 
+  {
+    int thread_id = omp_get_thread_num();
+    std::cout << "Hello from thread " << thread_id <<"\n";
   #pragma omp single
   {
     #pragma omp task depend(in : a) depend(out : w)
     f_a(N,a, &w);
-    #pragma opm task depend(in : b) depend(out : x)
+    #pragma omp task depend(in : b) depend(out : x)
     f_b(N,b, &x);
     #pragma omp task depend(in : c) depend(out : y)
     f_c(N,c, &y);
     #pragma omp task depend(in : w,x,y) depend(out : z)
     f_d(w, x, y, &z);
   }
+}
   std::cout << "The value of z is " << z << "."
             << "\n";
 
