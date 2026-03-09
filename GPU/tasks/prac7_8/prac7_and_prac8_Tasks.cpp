@@ -55,7 +55,7 @@ int main(int argc, char **argv)
     {
       auto x_d = x_buf.get_access<sycl::access::mode::read>(cgh);
       auto y_d = y_buf.get_access<sycl::access::mode::read>(cgh);
-      auto z_d = z_buf.get_access<sycl::access::mode::read_write>(cgh);
+      auto z_d = z_buf.get_access<sycl::access::mode::write>(cgh);
       cgh.parallel_for(
         sycl::range<1>(N),[=](sycl::id<1> i)
         {
@@ -80,7 +80,7 @@ int main(int argc, char **argv)
     {
       auto x_d = x_buf.get_access<sycl::access::mode::read>(cgh);
       auto y_d = y_buf.get_access<sycl::access::mode::read>(cgh);
-      auto z_d = z_buf.get_access<sycl::access::mode::read_write>(cgh);
+      auto z_d = z_buf.get_access<sycl::access::mode::write>(cgh);
       cgh.parallel_for(
         sycl::nd_range{global,local},[=](sycl::nd_item<3> i)
         {
@@ -92,9 +92,106 @@ int main(int argc, char **argv)
   }
 
   std::cout <<"\n Task 2b \n";
-  std::cout << "Vector addition result: \n";
+  std::cout << "Vector addition result (nd range): \n";
   for(auto i : z) std::cout << i << " ";
   std::cout << "\n";
+
+  //task 2c
+
+  std::cout<< "\n Task 2c \n";
+  sycl::queue q_cpu{sycl::cpu_selector{}};
+  std::cout << "Running on CPU: "
+            << q_cpu.get_device().get_info<sycl::info::device::name>()
+            << "\n";
+
+   {
+    sycl::buffer<double,1> x_buf(x.data(),x.size());
+    sycl::buffer<double,1> y_buf(y.data(),y.size());
+    sycl::buffer<double,1> z_buf(z.data(),z.size());
+    q_cpu.submit([&](sycl::handler& cgh)
+    {
+      auto x_d = x_buf.get_access<sycl::access::mode::read>(cgh);
+      auto y_d = y_buf.get_access<sycl::access::mode::read>(cgh);
+      auto z_d = z_buf.get_access<sycl::access::mode::write>(cgh);
+      cgh.parallel_for(
+        sycl::range<1>(N),[=](sycl::id<1> i)
+        {
+          z_d[i] = x_d[i] + y_d[i]; 
+        }
+      );
+    }).wait();
+  }
+   std::cout << "Vector addition result (high lvl parallel for) (CPU): \n";
+  for(auto i : z) std::cout << i << " ";
+  std::cout << "\n";
+  {
+    sycl::buffer<double,1> x_buf(x.data(),x.size());
+    sycl::buffer<double,1> y_buf(y.data(),y.size());
+    sycl::buffer<double,1> z_buf(z.data(),z.size());
+    q_cpu.submit([&](sycl::handler& cgh)
+    {
+      auto x_d = x_buf.get_access<sycl::access::mode::read>(cgh);
+      auto y_d = y_buf.get_access<sycl::access::mode::read>(cgh);
+      auto z_d = z_buf.get_access<sycl::access::mode::write>(cgh);
+      cgh.parallel_for(
+        sycl::nd_range{global,local},[=](sycl::nd_item<3> i)
+        {
+          int j = i.get_global_linear_id();
+          z_d[j] = x_d[j] + y_d[j]; 
+        }
+      );
+    }).wait();
+  }
+    std::cout << "Vector addition result (nd range) (CPU): \n";
+  for(auto i : z) std::cout << i << " ";
+  std::cout << "\n";
+
+  sycl::queue q_gpu{sycl::gpu_selector{}};
+std::cout << "Running on GPU: "
+          << q_gpu.get_device().get_info<sycl::info::device::name>()
+          << "\n";
+   {
+    sycl::buffer<double,1> x_buf(x.data(),x.size());
+    sycl::buffer<double,1> y_buf(y.data(),y.size());
+    sycl::buffer<double,1> z_buf(z.data(),z.size());
+    q_gpu.submit([&](sycl::handler& cgh)
+    {
+      auto x_d = x_buf.get_access<sycl::access::mode::read>(cgh);
+      auto y_d = y_buf.get_access<sycl::access::mode::read>(cgh);
+      auto z_d = z_buf.get_access<sycl::access::mode::write>(cgh);
+      cgh.parallel_for(
+        sycl::range<1>(N),[=](sycl::id<1> i)
+        {
+          z_d[i] = x_d[i] + y_d[i]; 
+        }
+      );
+    }).wait();
+  }
+   std::cout << "Vector addition result (high lvl parallel for) (CPU): \n";
+  for(auto i : z) std::cout << i << " ";
+  std::cout << "\n";
+  {
+    sycl::buffer<double,1> x_buf(x.data(),x.size());
+    sycl::buffer<double,1> y_buf(y.data(),y.size());
+    sycl::buffer<double,1> z_buf(z.data(),z.size());
+    q_gpu.submit([&](sycl::handler& cgh)
+    {
+      auto x_d = x_buf.get_access<sycl::access::mode::read>(cgh);
+      auto y_d = y_buf.get_access<sycl::access::mode::read>(cgh);
+      auto z_d = z_buf.get_access<sycl::access::mode::write>(cgh);
+      cgh.parallel_for(
+        sycl::nd_range{global,local},[=](sycl::nd_item<3> i)
+        {
+          int j = i.get_global_linear_id();
+          z_d[j] = x_d[j] + y_d[j]; 
+        }
+      );
+    }).wait();
+  }
+    std::cout << "Vector addition result (nd range) (CPU): \n";
+  for(auto i : z) std::cout << i << " ";
+  std::cout << "\n";
+
 
   //----- Task 3 -----//
   // Write a SYCL programme that computes the accumulated sum of the elements of a vector.
