@@ -213,13 +213,20 @@ int main(int argc, char **argv) {
     c[i] = 1;
   }
   double w, x, y, z;
-
-  f_a(N,a, &w);
-  f_b(N,b, &x);
-  f_c(N,c, &y);
-  f_d(w, x, y, &z);
-  // std::cout << "The value of z is " << z << "."
-  //           << "\n";
+  #pragma omp parallel 
+  #pragma omp single
+  {
+    #pragma omp task depend(in : a) depend(out : w)
+    f_a(N,a, &w);
+    #pragma opm task depend(in : b) depend(out : x)
+    f_b(N,b, &x);
+    #pragma omp task depend(in : c) depend(out : y)
+    f_c(N,c, &y);
+    #pragma omp task depend(in : w,x,y) depend(out : z)
+    f_d(w, x, y, &z);
+  }
+  std::cout << "The value of z is " << z << "."
+            << "\n";
 
   //----- Task 2 -----//
   // b)
