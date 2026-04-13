@@ -4,8 +4,8 @@ Each sample counts as 0.01 seconds.
   %   cumulative   self              self     total           
  time   seconds   seconds    calls   s/call   s/call  name    
  69.74      5.20     5.20        1     5.20     5.20  init_datastructures(double*, double*, double*, int)
- 19.89      6.69     1.48        1     1.48     1.48  function_c(double const*, double const*, int)
- 10.62      7.48     0.79        1     0.79     0.79  function_d(double const*, double const*, double const*, int)
+ 20.02      6.70     1.49        1     1.49     1.49  function_c(double const*, double const*, int)
+ 10.48      7.48     0.78        1     0.78     0.78  function_d(double const*, double const*, double const*, int)
   0.00      7.48     0.00        1     0.00     0.00  _GLOBAL__sub_I__Z10function_aPKdS0_i
   0.00      7.48     0.00        1     0.00     0.00  function_a(double const*, double const*, int)
   0.00      7.48     0.00        1     0.00     0.00  function_b(double const*, double const*, int)
@@ -70,8 +70,8 @@ index % time    self  children    called     name
                                                  <spontaneous>
 [1]    100.0    0.00    7.48                 main [1]
                 5.20    0.00       1/1           init_datastructures(double*, double*, double*, int) [2]
-                1.48    0.00       1/1           function_c(double const*, double const*, int) [3]
-                0.79    0.00       1/1           function_d(double const*, double const*, double const*, int) [4]
+                1.49    0.00       1/1           function_c(double const*, double const*, int) [3]
+                0.78    0.00       1/1           function_d(double const*, double const*, double const*, int) [4]
                 0.00    0.00       1/1           std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string<std::allocator<char> >(char const*, std::allocator<char> const&) [20]
                 0.00    0.00       1/1           std::__cxx11::stoi(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&, unsigned long*, int) [21]
                 0.00    0.00       1/1           function_a(double const*, double const*, int) [12]
@@ -82,11 +82,11 @@ index % time    self  children    called     name
                 5.20    0.00       1/1           main [1]
 [2]     69.6    5.20    0.00       1         init_datastructures(double*, double*, double*, int) [2]
 -----------------------------------------------
-                1.48    0.00       1/1           main [1]
-[3]     19.8    1.48    0.00       1         function_c(double const*, double const*, int) [3]
+                1.49    0.00       1/1           main [1]
+[3]     20.0    1.49    0.00       1         function_c(double const*, double const*, int) [3]
 -----------------------------------------------
-                0.79    0.00       1/1           main [1]
-[4]     10.6    0.79    0.00       1         function_d(double const*, double const*, double const*, int) [4]
+                0.78    0.00       1/1           main [1]
+[4]     10.5    0.78    0.00       1         function_d(double const*, double const*, double const*, int) [4]
 -----------------------------------------------
                 0.00    0.00       1/1           __libc_csu_init [40]
 [11]     0.0    0.00    0.00       1         _GLOBAL__sub_I__Z10function_aPKdS0_i [11]
