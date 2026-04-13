@@ -4,12 +4,16 @@
 
 double function_a(const double *u, const double *v, const int N) {
 	double s = 0;
-	for (unsigned int i = 0; i < N; i++) {
-   	if (s < 10) {
-   		s += u[i];
-   	} else {
-   		s += u[i]*v[i];
-   	}
+	for (unsigned int i = 0; i < N; i++) 
+	{
+		if (s < 10)
+		{
+			s += u[i];
+		} 
+		else
+		{
+			s += u[i]*v[i];
+		}
 	}
 	s /= sqrt((double)N);
 	return s;
