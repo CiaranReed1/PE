@@ -136,6 +136,7 @@ void print_results(const double s, const double *x, const double *y,
 int main(int argc, char **argv) {
 	int N;
 	LIKWID_MARKER_INIT;
+	LIKWID_MARKER_THREADINIT;
 	if (argc == 2) {
 		N = std::stoi(argv[1]);
 	} else {
