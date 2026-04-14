@@ -7,7 +7,7 @@
 #SBATCH -o triad.out #can use /dev/null to suppress output
 #SBATCH -e triad.err #can use /dev/null to suppress error output
 #SBATCH -t 00:15:00 #allowed time
-#SBATCH -p shared #Queue: shared, multi, long, bigmem, test
+#SBATCH -p test  #Queue: shared, multi, long, bigmem, test
 
 module purge
 module load gcc

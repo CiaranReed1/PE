@@ -13,5 +13,5 @@ module load gcc/12.2 likwid/5.2.0
 mkdir -p likwid_txt
 g++ -mfma -O1 -DLIKWID_PERFMON -fno-inline -march=native \
     -o instrumented number_crunching_likwid.cpp -llikwid
-likwid-perfctr -m -g "MEM_DP" -C 0 ./instrumented 10000   > likwid_txt/likwid_instrumented_O1_N10000.txt
+likwid-perfctr -m -g "MEM_DP" -C 0 ./instrumented 10000   > likwid_txt/number_crunching_likwid.out
 rm instrumented
