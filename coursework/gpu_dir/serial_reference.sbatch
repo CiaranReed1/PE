@@ -7,8 +7,8 @@
 #SBATCH -t 00-00:10:00
 #SBATCH --gres=gpu:1g.10gb:1
 #SBATCH --job-name="serial_reference"
-#SBATCH -e stderr-"reference.err"
-#SBATHC -o stdout-"reference.out"
+#SBATCH -e "serial_reference.err"
+#SBATHC -o "serial_reference.out"
 
 module purge
 module load cuda/12.0

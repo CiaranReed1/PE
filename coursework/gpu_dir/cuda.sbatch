@@ -7,8 +7,8 @@
 #SBATCH -t 00-00:10:00
 #SBATCH --gres=gpu:1g.10gb:1
 #SBATCH --job-name="numcrunch_cuda"
-#SBATCH -e stderr-"cuda.err"
-#SBATHC -o stdout-"cuda.out"
+#SBATCH -e "cuda.err"
+#SBATHC -o "cuda.out"
 
 module purge
 module load cuda/12.0
