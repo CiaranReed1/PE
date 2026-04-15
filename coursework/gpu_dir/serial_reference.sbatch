@@ -3,7 +3,7 @@
 #SBATCH -c 1
 #SBATCH -p tpg-gpu-small
 #SBATCH --qos=debug
-#SBATCH --mem=15G
+#SBATCH --mem=10G
 #SBATCH -t 00-00:10:00
 #SBATCH --gres=gpu:1g.10gb:1
 #SBATCH --job-name="serial_reference"
@@ -16,7 +16,7 @@ module load cuda/12.0
 # Compile
 nvcc number_crunching_serial.cu -o serial
 mkdir -p serial_ref
-for size in 10000 20000 30000 40000 50000  
+for size in 10000 20000 30000  
 do
     ./serial "$size" > serial_ref/serial_"$size".dat
 done
