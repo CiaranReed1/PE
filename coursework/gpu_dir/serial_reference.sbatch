@@ -7,7 +7,7 @@
 #SBATCH -t 00-00:10:00
 #SBATCH --gres=gpu:1g.10gb:1
 #SBATCH --job-name="serial_reference"
-#SBATCH -e /dev/null
+#SBATCH -e "serial.err"
 #SBATCH -o /dev/null
 
 module purge
