@@ -4,6 +4,21 @@
 #include <chrono>
 #include <fstream>
 
+int SM_count;
+int max_thread_per_block;
+int max_thread_per_SM;
+int warpSize;
+
+void getDeviceProperties()
+{
+  struct cudaDeviceProp prop;
+  cudaGetDeviceProperties(&prop, 0);
+  SM_count = prop.multiProcessorCount;
+  max_thread_per_block = prop.maxThreadsPerBlock;
+  warpSize = prop.warpSize;
+  max_thread_per_SM = prop.maxThreadsPerMultiProcessor;
+}
+
 void append_timings(const std::string& filename,
                     int N,
                     double ta, double tb, double tc,
@@ -22,7 +37,9 @@ void append_timings(const std::string& filename,
     }
 }
 
-double function_a(const double *u, const double *v, const int N) {
+double function_a(const double *u, const double *v, const int N) 
+{
+
 	double s = 0;
 	for (unsigned int i = 0; i < N; i++) 
 	{
@@ -39,12 +56,43 @@ double function_a(const double *u, const double *v, const int N) {
 	return s;
 }
 
-double *function_b(const double *u, const double *v, const int N) {
+
+double *function_b(const double *u, const double *v, const int N)
+{
 	double *x = new double[N];
-	for (unsigned int i = 0; i < N; i++) {
-      x[i] = u[i] + v[i];
-	}
+
+	//setup device memory
+	double *u_d;
+	double *v_d;
+	double *x_d;
+	cudaMalloc((void **)&u_d, sizeof(double) * N);
+	cudaMalloc((void **)&v_d,sizeof(double)*N);
+	cudaMalloc((void **)&x_d,sizeof(double)*N);
+	cudaMemcpy(u_d, u, sizeof(double) * N, cudaMemcpyHostToDevice);
+	cudaMemcpy(v_d, v, sizeof(double) * N, cudaMemcpyHostToDevice);
+
+	//launch kernel
+	dim3 numBlocks(2*SM_count);
+	dim3 threadsPerBlock(256);  
+	gpu_function_b<<<numBlocks, threadsPerBlock>>>(N,u_d, v_d, x_d);
+	cudaDeviceSynchronize();
+
+	//retrieve results and free device memory
+	cudaMemcpy(x,x_d,sizeof(double)*N,cudaMemcpyDeviceToHost);
+	cudaFree(u_d);
+	cudaFree(v_d);
+	cudaFree(x_d);
 	return x;
+}
+
+__global__ void gpu_function_b(const int N, const double *vec1, const double *vec2, double *res)
+{	
+	int stride = gridDim.x * blockDim.x;
+	int global_idx = blockIdx.x * blockDim.x + threadIdx.x;
+	for(int i = global_idx; i < N;i+=stride)
+	{
+		res[i] = vec1[i] + vec2[i];
+	}
 }
 
 double *function_c(const double *A, const double *x, const int N) {
@@ -138,6 +186,7 @@ void print_results(const double s, const double *x, const double *y,
 }
 
 int main(int argc, char **argv) {
+	getDeviceProperties();
 	int N;
 
 	if (argc == 2) {
@@ -157,13 +206,11 @@ int main(int argc, char **argv) {
 
 	auto t0 = std::chrono::high_resolution_clock::now();
 	double s = function_a(u, v, N);
-	cudaDeviceSynchronize();
 	auto t1 = std::chrono::high_resolution_clock::now();
   	std::chrono::duration< double > t_a = t1 - t0;
 
 	t0 = std::chrono::high_resolution_clock::now();
 	double *x = function_b(u, v, N);
-	cudaDeviceSynchronize();
 	t1 = std::chrono::high_resolution_clock::now();
 	std::chrono::duration< double > t_b = t1 - t0;
 	

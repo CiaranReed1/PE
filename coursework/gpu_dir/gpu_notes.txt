@@ -1,1 +1,11 @@
 Use the interactive sessioon for development/debug then use sbatch to check for correctness and generate the output files with timing
+
+Function A:
+this function is funadmentally serial. it is a reduction containing a branch, with the caveat being that the branch depends upon the reduction variable.
+This means every single iteration is dependent on the previous iteration and to extension every single iteration before it. 
+Thus the problem has to be completed serially, therefore there is no point in trying to move this function onto the gpu and it should stay on the CPU. 
+
+Function B:
+this is a simle vector addition and trivially parallelised on the GPU using a simple strided approach.
+I have freed x at the end but this is not strictly necessary nor optimal as it is used again further in the program.
+
