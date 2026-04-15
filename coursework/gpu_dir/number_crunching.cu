@@ -7,7 +7,7 @@
 int SM_count;
 int max_thread_per_block;
 int max_thread_per_SM;
-int warpSize;
+int warp_size;
 
 void getDeviceProperties()
 {
@@ -15,7 +15,7 @@ void getDeviceProperties()
   cudaGetDeviceProperties(&prop, 0);
   SM_count = prop.multiProcessorCount;
   max_thread_per_block = prop.maxThreadsPerBlock;
-  warpSize = prop.warpSize;
+  warp_size = prop.warpSize;
   max_thread_per_SM = prop.maxThreadsPerMultiProcessor;
 }
 
