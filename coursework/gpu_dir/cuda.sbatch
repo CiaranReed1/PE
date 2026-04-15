@@ -3,7 +3,7 @@
 #SBATCH -c 1
 #SBATCH -p tpg-gpu-small
 #SBATCH --qos=debug
-#SBATCH --mem=5G
+#SBATCH --mem=15G
 #SBATCH -t 00-00:10:00
 #SBATCH --gres=gpu:1g.10gb:1
 #SBATCH --job-name="numcrunch_cuda"
