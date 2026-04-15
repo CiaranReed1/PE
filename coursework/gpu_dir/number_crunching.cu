@@ -56,6 +56,15 @@ double function_a(const double *u, const double *v, const int N)
 	return s;
 }
 
+__global__ void gpu_function_b(const int N, const double *vec1, const double *vec2, double *res)
+{	
+	int stride = gridDim.x * blockDim.x;
+	int global_idx = blockIdx.x * blockDim.x + threadIdx.x;
+	for(unsigned int i = global_idx; i < N;i+=stride)
+	{
+		res[i] = vec1[i] + vec2[i];
+	}
+}
 
 double *function_b(const double *u, const double *v, const int N)
 {
@@ -84,45 +93,6 @@ double *function_b(const double *u, const double *v, const int N)
 	cudaFree(v_d);
 	cudaFree(x_d);
 	return x;
-}
-
-__global__ void gpu_function_b(const int N, const double *vec1, const double *vec2, double *res)
-{	
-	int stride = gridDim.x * blockDim.x;
-	int global_idx = blockIdx.x * blockDim.x + threadIdx.x;
-	for(unsigned int i = global_idx; i < N;i+=stride)
-	{
-		res[i] = vec1[i] + vec2[i];
-	}
-}
-
-double *function_c(const double *A, const double *x, const int N) {
-	double *y = new double[N];
-	
-	//setup device memory
-	double *A_d;
-	double *x_d;
-	double *y_d;
-	size_t NN = static_cast<size_t>(N) * static_cast<size_t>(N);
-	cudaMalloc((void **)&A_d,sizeof(double)*NN);
-	cudaMalloc((void**)&x_d,sizeof(double)*N);
-	cudaMalloc((void**)&y_d,sizeof(double)*N);
-	cudaMemcpy(A_d,A,sizeof(double)*NN,cudaMemcpyHostToDevice);
-	cudaMemcpy(x_d,x,sizeof(double)*N,cudaMemcpyHostToDevice);
-
-	//launch kernel
-	dim3 numBlocks(2*SM_count);
-	int nthreads = 256;
-	dim3 threadsPerBlock(nthreads);
-	gpu_function_c<<<numBlocks,threadsPerBlock,nthreads*sizeof(double)>>>(N,A_d,x_d,y_d);
-
-	//retrieve results and free device memory
-	cudaDeviceSynchronize();
-	cudaMemcpy(y,y_d,sizeof(double)*N,cudaMemcpyDeviceToHost);
-	cudaFree(A_d);
-	cudaFree(x_d);
-	cudaFree(y_d);
-	return y;
 }
 
 __global__ void gpu_function_c(const int N, const double *matrix, const double *vec, double *res )
@@ -155,6 +125,35 @@ __global__ void gpu_function_c(const int N, const double *matrix, const double *
 		}
 		__syncthreads();  //sync before moving onto next row 
 	}
+}
+
+double *function_c(const double *A, const double *x, const int N) {
+	double *y = new double[N];
+	
+	//setup device memory
+	double *A_d;
+	double *x_d;
+	double *y_d;
+	size_t NN = static_cast<size_t>(N) * static_cast<size_t>(N);
+	cudaMalloc((void **)&A_d,sizeof(double)*NN);
+	cudaMalloc((void**)&x_d,sizeof(double)*N);
+	cudaMalloc((void**)&y_d,sizeof(double)*N);
+	cudaMemcpy(A_d,A,sizeof(double)*NN,cudaMemcpyHostToDevice);
+	cudaMemcpy(x_d,x,sizeof(double)*N,cudaMemcpyHostToDevice);
+
+	//launch kernel
+	dim3 numBlocks(2*SM_count);
+	int nthreads = 256;
+	dim3 threadsPerBlock(nthreads);
+	gpu_function_c<<<numBlocks,threadsPerBlock,nthreads*sizeof(double)>>>(N,A_d,x_d,y_d);
+
+	//retrieve results and free device memory
+	cudaDeviceSynchronize();
+	cudaMemcpy(y,y_d,sizeof(double)*N,cudaMemcpyDeviceToHost);
+	cudaFree(A_d);
+	cudaFree(x_d);
+	cudaFree(y_d);
+	return y;
 }
 
 double *function_d(const double *A, const double *x, const double *u,
