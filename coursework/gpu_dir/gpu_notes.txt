@@ -1,0 +1,1 @@
+Use the interactive sessioon for development/debug then use sbatch to check for correctness and generate the output files with timing
