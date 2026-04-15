@@ -14,7 +14,7 @@ module purge
 module load cuda/12.0
 
 # Compile
-nvcc number_crunching_.cu -o numcrunch_cuda
+nvcc number_crunching.cu -o numcrunch_cuda
 mkdir -p cuda_ref
 for size in 10000 20000 30000 
 do
