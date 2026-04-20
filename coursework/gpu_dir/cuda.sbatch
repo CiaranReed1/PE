@@ -15,9 +15,12 @@ module load cuda/12.0
 
 # Compile
 nvcc number_crunching_loop.cu -o numcrunch_cuda
+nvcc number_crunching_kernel.cu -o numcrunch_kernel
 mkdir -p cuda_ref
 for size in 10000 20000 30000 
 do
     ./numcrunch_cuda "$size" > cuda_ref/cuda_"$size".dat
+    ./numcrunch_kernel "$size" > NULL
 done
 rm numcrunch_cuda
+rm numcrunch_kernel
