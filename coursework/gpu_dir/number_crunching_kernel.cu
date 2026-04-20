@@ -151,10 +151,10 @@ double *function_c(const double *A, const double *x, const int N, std::chrono::d
 	dim3 numBlocks(2*SM_count);
 	int nthreads = 256;
 	dim3 threadsPerBlock(nthreads);
-	auto t0 = std::chrono::high_resolution_clock.now();
+	auto t0 = std::chrono::high_resolution_clock::now();
 	gpu_function_c<<<numBlocks,threadsPerBlock,nthreads*sizeof(double)>>>(N,A_d,x_d,y_d); //launch kernel, allocating dynamic memory based on N threads
 	cudaDeviceSynchronize();
-	auto t1 = std::chrono::high_resolution_clock.now();
+	auto t1 = std::chrono::high_resolution_clock::now();
 	*t_c_kern = t1-t0;
 	//retrieve results and free device memory
 	
@@ -219,10 +219,10 @@ double *function_d(const double *A, const double *x, const double *u,
 	dim3 numBlocks(2*SM_count);
 	int nthreads = 256;
 	dim3 threadsPerBlock(nthreads);
-	auto t0 = std::chrono::high_resolution_clock.now();
+	auto t0 = std::chrono::high_resolution_clock::now();
 	gpu_function_d<<<numBlocks,threadsPerBlock,nthreads*sizeof(double)>>>(N,A_d,x_d,u_d,w_d); //launch kernel, allocating dynamic memory based on N threads
 	cudaDeviceSynchronize();
-	auto t1 = std::chrono::high_resolution_clock.now();
+	auto t1 = std::chrono::high_resolution_clock::now();
 	*t_d_kern = t1-t0;
 
 	//retrieve results and free device memory
@@ -265,10 +265,10 @@ double *function_e(const double s, const double *x, const double *y,
 	dim3 numBlocks(2*SM_count);
 	int nthreads = 256;
 	dim3 threadsPerBlock(nthreads);
-	auto t0 = std::chrono:high_resolution_clock.now();
+	auto t0 = std::chrono::high_resolution_clock::now();
 	gpu_function_e<<<numBlocks,threadsPerBlock>>>(N,s,x_d,y_d,z_d); //launch kernel, allocating dynamic memory based on N threads
 	cudaDeviceSynchronize();
-	auto t1 = std::chrono::high_resolution_clock.now();
+	auto t1 = std::chrono::high_resolution_clock::now();
 	*t_e_kern = t1-t0;
 
 	//retrieve results and free device memory
