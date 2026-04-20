@@ -20,7 +20,7 @@ mkdir -p cuda_ref
 for size in 10000 20000 30000 
 do
     ./numcrunch_cuda "$size" > cuda_ref/cuda_"$size".dat
-    ./numcrunch_kernel "$size" > NULL
+    ./numcrunch_kernel "$size" > /dev/null
 done
 rm numcrunch_cuda
 rm numcrunch_kernel
