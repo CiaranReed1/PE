@@ -366,17 +366,17 @@ int main(int argc, char **argv) {
 	std::chrono::duration< double > t_b = t1 - t0;
 	
 	t0 = std::chrono::high_resolution_clock::now();
-	double *y = function_c(A, x, N);
+	double *y = function_c(A, x, N,&t_c_kern);
 	t1 = std::chrono::high_resolution_clock::now();
 	std::chrono::duration< double > t_c = t1 - t0;
 
 	t0 = std::chrono::high_resolution_clock::now();
-	double *w = function_d(A, x, u, N);
+	double *w = function_d(A, x, u, N,&t_d_kern);
 	t1 = std::chrono::high_resolution_clock::now();
 	std::chrono::duration< double > t_d = t1 - t0;
 
 	t0 = std::chrono::high_resolution_clock::now();
-	double *z = function_e(s, w, y, N);
+	double *z = function_e(s, w, y, N,&t_e_kern);
 	t1 = std::chrono::high_resolution_clock::now();
 	std::chrono::duration< double > t_e = t1 - t0;
 
