@@ -163,6 +163,7 @@ __global__ void gpu_function_d(const int N, const double *matrix, const double *
 	//again the u[i] can be used to scale at the end
 	//over the row, you start at j =0, then go up in 2s, i.e j = 0, 2,4 up until N-1. 
 	//can do a similar strided thread approach, starting at threadidx * 2, (0,2,4) and having the stride as 2*Nthreads, (therefore next would be 6,8,10)
+	//again accepts any 1D grid with 1D blocks
 	int block_stride = gridDim.x;
 	int thread_stride = 2* blockDim.x;
 	extern __shared__ double partial_sums[];
@@ -222,16 +223,44 @@ double *function_d(const double *A, const double *x, const double *u,
 	return w;
 }
 
+__global__ void gpu_function_e(const int N, const double sum, const double *vec_x, const double *vec_y, double *res)
+{
+	int stride = blockDim.x * gridDim.x;
+	int global_idx = blockIdx.x * blockDim.x + threadIdx.x;
+	double scale = 0;
+	for (int i = global_idx; i<N;i+=stride)
+	{
+		scale = ((i & 1) == 0) ? sum : 1.0; //introduce scale variable to remove branch within warps
+		res[i] = scale * vec_x[i] + vec_y[i];
+	}
+}
+
 double *function_e(const double s, const double *x, const double *y,
 									 const int N) {
 	double *z = new double[N];
-	for (unsigned int i = 0; i < N; i++) {
-		if (i % 2 == 0) {
-			z[i] = s * x[i] + y[i];
-		} else {
-			z[i] = x[i] + y[i];
-		}
-	}
+	
+	//setup device memory
+	double *x_d;
+	double *y_d;
+	double *z_d;
+	cudaMalloc((void**)&x_d,sizeof(double)*N);
+	cudaMalloc((void**)&y_d,sizeof(double)*N);
+	cudaMalloc((void**)&z_d,sizeof(double)*N);
+	cudaMemcpy(x_d,x,sizeof(double)*N,cudaMemcpyHostToDevice);
+	cudaMemcpy(y_d,y,sizeof(double)*N,cudaMemcpyHostToDevice);
+	
+	//launch kernel
+	dim3 numBlocks(2*SM_count);
+	int nthreads = 256;
+	dim3 threadsPerBlock(nthreads);
+	gpu_function_e<<<numBlocks,threadsPerBlock>>>(N,s,x_d,y_d,z_d); //launch kernel, allocating dynamic memory based on N threads
+
+	//retrieve results and free device memory
+	cudaDeviceSynchronize();
+	cudaMemcpy(z,z_d,sizeof(double)*N,cudaMemcpyDeviceToHost);
+	cudaFree(x_d);
+	cudaFree(y_d);
+	cudaFree(z_d);
 	return z;
 }
 
