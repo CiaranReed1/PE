@@ -7,7 +7,7 @@
 void append_timings(const std::string& filename,
                     int N,
                     double ta, double tb, double tc,
-                    double td, double te)
+                    double td, double te, double total_time)
 {
     std::ofstream file(filename, std::ios::app);
 
@@ -17,7 +17,8 @@ void append_timings(const std::string& filename,
              << tb << ","
              << tc << ","
              << td << ","
-             << te << "\n";
+             << te << ","
+             << total_time << "\n";
         file.close();
     }
 }
@@ -138,6 +139,7 @@ void print_results(const double s, const double *x, const double *y,
 }
 
 int main(int argc, char **argv) {
+	auto time_start = std::chrono::high_resolution_clock::now();
 	int N;
 
 	if (argc == 2) {
@@ -180,14 +182,16 @@ int main(int argc, char **argv) {
 	t1 = std::chrono::high_resolution_clock::now();
 	std::chrono::duration< double > t_e = t1 - t0;
 
-
+	auto time_end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration< double > total_time = time_end - time_start;
 	append_timings("serial_timings.csv",
                N,
                t_a.count(),
                t_b.count(),
                t_c.count(),
                t_d.count(),
-               t_e.count());
+               t_e.count(),
+			   total_time.count());
 			
 	print_results(s, x, y, z, A, w, N);
 
