@@ -1,0 +1,93 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Read data
+serial_data = pd.read_csv("serial_timings.csv")
+cuda_kernel_data = pd.read_csv("cuda_kernel_timings.csv")
+cuda_whole_data = pd.read_csv("cuda_timings.csv")
+
+functions = ["t_a", "t_b", "t_c", "t_d", "t_e"]
+plot_functions = ["t_b", "t_c", "t_d", "t_e"]
+Ns = [10000, 20000, 30000]
+
+# ---- First plot: serial means with standard error ----
+serial_mean = serial_data.groupby("N")[functions].mean()
+serial_sem  = serial_data.groupby("N")[functions].sem()
+
+x = np.arange(len(functions))
+
+fig, ax = plt.subplots(figsize=(10, 6))
+
+for N in Ns:
+    ax.errorbar(
+        x,
+        serial_mean.loc[N, functions],
+        yerr=serial_sem.loc[N, functions],
+        fmt='o',
+        capsize=5,
+        label=f"N = {N}"
+    )
+
+ax.set_xticks(x)
+ax.set_xticklabels(functions)
+ax.set_xlabel("Function")
+ax.set_ylabel("Time (s)")
+ax.set_title("Serial execution time with standard error")
+ax.legend()
+ax.grid(True, axis="y", alpha=0.3)
+
+plt.tight_layout()
+plt.savefig("plots/serial_timings.png")
+
+
+# ---- Compute means and SEM for all datasets ----
+serial_mean = serial_data.groupby("N")[functions].mean()
+serial_sem  = serial_data.groupby("N")[functions].sem()
+
+cuda_kernel_mean = cuda_kernel_data.groupby("N")[functions].mean()
+cuda_kernel_sem  = cuda_kernel_data.groupby("N")[functions].sem()
+
+cuda_whole_mean = cuda_whole_data.groupby("N")[functions].mean()
+cuda_whole_sem  = cuda_whole_data.groupby("N")[functions].sem()
+
+
+# ---- One plot per function (excluding t_a) ----
+for func in plot_functions:
+    fig, ax = plt.subplots(figsize=(8, 5))
+
+    ax.errorbar(
+        Ns,
+        serial_mean.loc[Ns, func],
+        yerr=serial_sem.loc[Ns, func],
+        fmt='-o',
+        capsize=5,
+        label="Serial"
+    )
+
+    ax.errorbar(
+        Ns,
+        cuda_kernel_mean.loc[Ns, func],
+        yerr=cuda_kernel_sem.loc[Ns, func],
+        fmt='-o',
+        capsize=5,
+        label="CUDA kernel only"
+    )
+
+    ax.errorbar(
+        Ns,
+        cuda_whole_mean.loc[Ns, func],
+        yerr=cuda_whole_sem.loc[Ns, func],
+        fmt='-o',
+        capsize=5,
+        label="CUDA total"
+    )
+
+    ax.set_xlabel("Problem size (N)")
+    ax.set_ylabel("Time (s)")
+    ax.set_title(f"{func} duration vs problem size")
+    ax.legend()
+    ax.grid(True, alpha=0.3)
+
+    plt.tight_layout()
+    plt.savefig(f"plots/{func}_timings.png")
