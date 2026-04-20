@@ -268,7 +268,7 @@ int main(int argc, char **argv) {
 	cudaStreamWaitEvent(streamMem,c_done,0); //when c is done, transfer y back to host
 	cudaMemcpyAsync(y,y_d,sizeof(double)*N,cudaMemcpyDeviceToHost,streamMem); 
 
-	s = function_a(u, v, N); //run f_a concurrently on the CPU alongisde f_b, f_c and f_d on the GPU
+	double s = function_a(u, v, N); //run f_a concurrently on the CPU alongisde f_b, f_c and f_d on the GPU
 
 	int nthreads_e = 256;
 	dim3 threadsPerBlock_e(nthreads_e);
