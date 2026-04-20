@@ -14,10 +14,13 @@ module purge
 module load cuda/12.0
 
 # Compile
-nvcc number_crunching_serial.cu -o serial
+nvcc number_crunching_serial.cu -O3 -o serial
 mkdir -p serial_ref
-for size in 10000 20000 30000  
+for run in {1..5}
 do
-    ./serial "$size" > serial_ref/serial_"$size".dat
+    for size in 10000 20000 30000  
+    do
+        ./serial "$size" > serial_ref/serial_"$size".dat
+    done
 done
 rm serial

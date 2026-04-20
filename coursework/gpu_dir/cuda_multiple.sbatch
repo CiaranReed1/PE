@@ -14,8 +14,8 @@ module purge
 module load cuda/12.0
 
 # Compile
-nvcc number_crunching_loop.cu -o numcrunch_cuda
-nvcc number_crunching_kernel.cu -o numcrunch_kernel
+nvcc number_crunching_loop.cu -O3 -o numcrunch_cuda
+nvcc number_crunching_kernel.cu -O3 -o numcrunch_kernel
 
 mkdir -p cuda_ref
 
