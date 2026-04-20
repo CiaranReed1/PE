@@ -4,6 +4,7 @@
 #include <chrono>
 #include <fstream>
 
+// device properties
 int SM_count;
 int max_thread_per_block;
 int max_thread_per_SM;
@@ -23,7 +24,7 @@ void append_timings(const std::string& filename,
                     int N,
                     double ta, double tb, double tc,
                     double td, double te)
-{
+{ //helper function to append function wall times to a file
     std::ofstream file(filename, std::ios::app);
 
     if (file.is_open()) {
@@ -38,7 +39,7 @@ void append_timings(const std::string& filename,
 }
 
 double function_a(const double *u, const double *v, const int N) 
-{
+{ //this function is fundamentally serial. I have not implemented a parallel approach (see report)
 
 	double s = 0;
 	for (unsigned int i = 0; i < N; i++) 
@@ -57,7 +58,7 @@ double function_a(const double *u, const double *v, const int N)
 }
 
 __global__ void gpu_function_b(const int N, const double *vec1, const double *vec2, double *res)
-{	
+{	//function b kernel, accepts any 1D grid with 1D blocks
 	int stride = gridDim.x * blockDim.x;
 	int global_idx = blockIdx.x * blockDim.x + threadIdx.x;
 	for(unsigned int i = global_idx; i < N;i+=stride)
@@ -82,7 +83,6 @@ double *function_b(const double *u, const double *v, const int N)
 
 	//launch kernel
 	dim3 numBlocks(2*SM_count);
-
 	dim3 threadsPerBlock(256);  
 	gpu_function_b<<<numBlocks, threadsPerBlock>>>(N,u_d, v_d, x_d);
 	cudaDeviceSynchronize();
@@ -97,19 +97,20 @@ double *function_b(const double *u, const double *v, const int N)
 
 __global__ void gpu_function_c(const int N, const double *matrix, const double *vec, double *res )
 {
-	//each block calculates a signle row, with threads calculating a partial strided sum over the row before reducing to a final result within the block.
-	//then a strided approach is used to ensure that the blocks cover every single row
-	int stride = gridDim.x;
-	extern __shared__ double partial_sums[]; //shared memory to store thread partial sums, dynamic is used to set num of threads at runtime dependent on N
-	for (unsigned int i = blockIdx.x;i < N;i+= stride)
-	{
+	//each block calculates a single row, with threads calculating a partial strided sum over the row before reducing to a final result within the block.
+	//accepts any 1D grid with 1D blocks
+	int block_stride = gridDim.x;
+	int thread_stride = blockDim.x;
+	extern __shared__ double partial_sums[]; //shared memory to store thread partial sums, dynamic is used to set num of threads at runtime (this is technicaly not necessary as static shared memory would suffice)
+	for (unsigned int i = blockIdx.x;i < N;i+= block_stride) //each block covers an entire row
+	{ 
 		//calculate thread based partial sum
 		partial_sums[threadIdx.x] = 0;
-		for (unsigned int j = threadIdx.x; j < N;j+= blockDim.x) // strided approach to ensure entire row is calculated
+		for (unsigned int j = threadIdx.x; j < N;j+= thread_stride) // threads use strided loop to construct partial sums
 		{
 			partial_sums[threadIdx.x] += matrix[i*N + j];
 		}
-		__syncthreads(); //sync before combining partial sums
+		__syncthreads(); //sync threads before combining partial sums
 
 		// tree based reduction into thread 0(enables parallelism in reduction)
 		for (unsigned int s = blockDim.x / 2; s > 0; s >>= 1) { 
@@ -145,7 +146,7 @@ double *function_c(const double *A, const double *x, const int N) {
 	dim3 numBlocks(2*SM_count);
 	int nthreads = 256;
 	dim3 threadsPerBlock(nthreads);
-	gpu_function_c<<<numBlocks,threadsPerBlock,nthreads*sizeof(double)>>>(N,A_d,x_d,y_d);
+	gpu_function_c<<<numBlocks,threadsPerBlock,nthreads*sizeof(double)>>>(N,A_d,x_d,y_d); //launch kernel, allocating dynamic memory based on N threads
 
 	//retrieve results and free device memory
 	cudaDeviceSynchronize();
@@ -156,15 +157,68 @@ double *function_c(const double *A, const double *x, const int N) {
 	return y;
 }
 
+__global__ void gpu_function_d(const int N, const double *matrix, const double *vec_x, const double *vec_u, double *res)
+{
+	//This function is very similar to c, doing a reduction over each row of a matrix.
+	//again the u[i] can be used to scale at the end
+	//over the row, you start at j =0, then go up in 2s, i.e j = 0, 2,4 up until N-1. 
+	//can do a similar strided thread approach, starting at threadidx * 2, (0,2,4) and having the stride as 2*Nthreads, (therefore next would be 6,8,10)
+	int block_stride = gridDim.x;
+	int thread_stride = 2* blockDim.x;
+	extern __shared__ double partial_sums[];
+	for(int i = blockIdx.x; i < N;i+=block_stride)
+	{
+		partial_sums[threadIdx.x] = 0;
+		for(int j = threadIdx.x *2;j < N-1; j+=thread_stride)
+		{
+			partial_sums[threadIdx.x] += matrix[i*N + j] * vec_x[j];
+		}
+		__syncthreads();
+		// tree based reduction into thread 0(enables parallelism in reduction)
+		for (unsigned int s = blockDim.x / 2; s > 0; s >>= 1) { 
+   			if (threadIdx.x < s) {
+        		partial_sums[threadIdx.x] += partial_sums[threadIdx.x + s];
+    		}
+			__syncthreads(); //sync after each level of the tree
+		} 
+		if (threadIdx.x == 0){ //save result using single thread
+			res[i] = vec_u[i] * partial_sums[0]; //scale final result using u[i]
+		}
+		__syncthreads();  //sync before moving onto next row 
+	}
+}
+
 double *function_d(const double *A, const double *x, const double *u,
 									 const int N) {
 	double *w = new double[N];
-	for (unsigned int i = 0; i < N; i++) {
-		w[i] = 0.0;
-		for (unsigned int j = 0; j < N-1; j+=2) {
-			w[i] += u[i] * A[i * N + j] * x[j];
-		}
-	}
+	
+	//setup device memory
+	double *A_d;
+	double *x_d;
+	double *u_d;
+	double *w_d;
+	size_t NN = static_cast<size_t>(N) * static_cast<size_t>(N);
+	cudaMalloc((void **)&A_d,sizeof(double)*NN);
+	cudaMalloc((void**)&x_d,sizeof(double)*N);
+	cudaMalloc((void**)&u_d,sizeof(double)*N);
+	cudaMalloc((void**)&w_d,sizeof(double)*N);
+	cudaMemcpy(A_d,A,sizeof(double)*NN,cudaMemcpyHostToDevice);
+	cudaMemcpy(x_d,x,sizeof(double)*N,cudaMemcpyHostToDevice);
+	cudaMemcpy(u_d,u,sizeof(double)*N,cudaMemcpyHostToDevice);
+
+	//launch kernel
+	dim3 numBlocks(2*SM_count);
+	int nthreads = 256;
+	dim3 threadsPerBlock(nthreads);
+	gpu_function_d<<<numBlocks,threadsPerBlock,nthreads*sizeof(double)>>>(N,A_d,x_d,u_d,w_d); //launch kernel, allocating dynamic memory based on N threads
+
+	//retrieve results and free device memory
+	cudaDeviceSynchronize();
+	cudaMemcpy(w,w_d,sizeof(double)*N,cudaMemcpyDeviceToHost);
+	cudaFree(A_d);
+	cudaFree(x_d);
+	cudaFree(u_d);
+	cudaFree(w_d);
 	return w;
 }
 
@@ -262,19 +316,16 @@ int main(int argc, char **argv) {
 	
 	t0 = std::chrono::high_resolution_clock::now();
 	double *y = function_c(A, x, N);
-	cudaDeviceSynchronize();
 	t1 = std::chrono::high_resolution_clock::now();
 	std::chrono::duration< double > t_c = t1 - t0;
 
 	t0 = std::chrono::high_resolution_clock::now();
 	double *w = function_d(A, x, u, N);
-	cudaDeviceSynchronize();
 	t1 = std::chrono::high_resolution_clock::now();
 	std::chrono::duration< double > t_d = t1 - t0;
 
 	t0 = std::chrono::high_resolution_clock::now();
 	double *z = function_e(s, w, y, N);
-	cudaDeviceSynchronize();
 	t1 = std::chrono::high_resolution_clock::now();
 	std::chrono::duration< double > t_e = t1 - t0;
 
