@@ -380,15 +380,6 @@ int main(int argc, char **argv) {
 	t1 = std::chrono::high_resolution_clock::now();
 	std::chrono::duration< double > t_e = t1 - t0;
 
-
-	append_timings("cuda_timings.csv",
-               N,
-               t_a.count(),
-               t_b.count(),
-               t_c.count(),
-               t_d.count(),
-               t_e.count());
-			
 	append_timings("cuda_kernel_timings.csv",N,
 		t_a.count(),
 		t_b_kern.count(),
