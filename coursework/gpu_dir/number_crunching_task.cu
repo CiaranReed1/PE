@@ -228,63 +228,60 @@ int main(int argc, char **argv) {
 	cudaMemcpy(u_d, u, sizeof(double) * N, cudaMemcpyHostToDevice); //blocking memory transfer 
 	cudaMemcpy(v_d, v, sizeof(double) * N, cudaMemcpyHostToDevice);
 
-	cudaStream_t streamMem, streamB, streamC, streamD;  //create streams
-	cudaStreamCreate(&streamMem);
+	cudaStream_t streamB, streamC, streamD, streamE;  //create streams
 	cudaStreamCreate(&streamB);
 	cudaStreamCreate(&streamC);
 	cudaStreamCreate(&streamD);
+	cudaStreamCreate(&streamE);
 
-	cudaEvent_t b_done, A_transferred, c_done; //create important events
+	cudaEvent_t b_done, A_transferred, c_done, d_done; //create events
 	cudaEventCreate(&b_done);
 	cudaEventCreate(&A_transferred);
 	cudaEventCreate(&c_done);
+	cudaEventCreate(%d_done);
 
-	dim3 numBlocks(2*SM_count); //launch kernel b
+	dim3 numBlocks(2*SM_count); //launch kernel b, record finish then transfer results back
 	dim3 threadsPerBlock_b(256);  
 	gpu_function_b<<<numBlocks, threadsPerBlock_b, 0, streamB>>>(N,u_d, v_d, x_d);
 	cudaEventRecord(b_done,streamB);
+	cudaMemcpyAsync(x,x_d,sizeof(double)*N,cudaMemcpyDeviceToHost,streamB);
 
-	cudaMemcpyAsync(A_d,A,sizeof(double)*NN,cudaMemcpyHostToDevice,streamMem);  //asynchronously transfer A to GPU
-	cudaEventRecord(A_transferred,streamMem);
+	cudaMemcpyAsync(A_d,A,sizeof(double)*NN,cudaMemcpyHostToDevice,streamD);  //asynchronously transfer A to GPU (on stream D)
+	cudaEventRecord(A_transferred,streamD);
 
 	cudaStreamWaitEvent(streamC, b_done, 0); //makes streams C and D wait until b is done before starting (so x_d is available on the GPU)
 	cudaStreamWaitEvent(streamD, b_done, 0); 
-	cudaStreamWaitEvent(streamC, A_transferred, 0); //makes stream C and D wait until A is transferred before starting (so A_d is available on the GPU)
-	cudaStreamWaitEvent(streamD, A_transferred, 0);
-
-	cudaStreamWaitEvent(streamMem, b_done,0); //makes memory stream wait until b is done to transfer x back to host
-	cudaMemcpyAsync(x,x_d,sizeof(double)*N,cudaMemcpyDeviceToHost,streamMem);
-
-	int nthreads_c = 256; //launches kernels c and d 
+	cudaStreamWaitEvent(streamC, A_transferred, 0); //makes stream C wait until A is transferred before starting (so A_d is available on the GPU)
+	
+	int nthreads_c = 256; //launches kernels c and d, record finish and transfer results back
 	dim3 threadsPerBlock_c(nthreads_c);
 	int nthreads_d = 256;
 	dim3 threadsPerBlock_d(nthreads_d);
 	gpu_function_c<<<numBlocks,threadsPerBlock_c,nthreads_c*sizeof(double),streamC>>>(N,A_d,x_d,y_d); 
 	gpu_function_d<<<numBlocks,threadsPerBlock_d,nthreads_d*sizeof(double),streamD>>>(N,A_d,x_d,u_d,w_d);
 	cudaEventRecord(c_done,streamC);
-
-	cudaMemcpyAsync(w,w_d,sizeof(double)*N,cudaMemcpyDeviceToHost,streamD); //transfer w back to host when d is done
-
-	cudaStreamWaitEvent(streamMem,c_done,0); //when c is done, transfer y back to host
-	cudaMemcpyAsync(y,y_d,sizeof(double)*N,cudaMemcpyDeviceToHost,streamMem); 
+	cudaEventRecord(d_done,streamD);
+	cudaMemcpyAsync(w,w_d,sizeof(double)*N,cudaMemcpyDeviceToHost,streamD); //transfer w and y back to host when respective kernels finished
+	cudaMemcpyAsync(y,y_d,sizeof(double)*N,cudaMemcpyDeviceToHost,streamC); 
 
 	double s = function_a(u, v, N); //run f_a concurrently on the CPU alongisde f_b, f_c and f_d on the GPU
 
-	int nthreads_e = 256; //launch kernel e, which can only start when a,b and c are all done (as it needs s,x,y)
+	int nthreads_e = 256; //launch kernel e and transfer results back, which can only start when a,b,c and d are all done (as it needs s,w,y)
 	dim3 threadsPerBlock_e(nthreads_e);
-	cudaDeviceSynchronize(); 
-	gpu_function_e<<<numBlocks, threadsPerBlock_e,0,streamC>>>(N, s, x_d, y_d,z_d);
-	cudaDeviceSynchronize(); 
-	cudaMemcpyAsync(z, z_d, sizeof(double)*N, cudaMemcpyDeviceToHost, streamC);
+	cudaStreamWaitEvent(streamE,c_done,0);
+	cudaStreamWaitEvent(streamE,d_done,0);
+	gpu_function_e<<<numBlocks, threadsPerBlock_e,0,streamE>>>(N, s, w_d, y_d,z_d);
+	cudaMemcpyAsync(z, z_d, sizeof(double)*N, cudaMemcpyDeviceToHost, streamE); 
 
 	cudaDeviceSynchronize(); //global sync
-	cudaStreamDestroy(streamMem); //destroy streams and events
+	cudaStreamDestroy(streamE); //destroy streams and events
 	cudaStreamDestroy(streamB);
 	cudaStreamDestroy(streamC);
 	cudaStreamDestroy(streamD);
 	cudaEventDestroy(b_done);
 	cudaEventDestroy(A_transferred);
 	cudaEventDestroy(c_done);
+	cudaEventDestroy(d_done);
 
 	cudaFree(A_d);
 	cudaFree(u_d);
