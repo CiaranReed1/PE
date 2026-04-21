@@ -302,10 +302,10 @@ int main(int argc, char **argv) {
 	cudaFreeHost(z);
 
 	auto t1 = std::chrono::high_resolution_clock::now();
-	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t1 - t0).count();
+	std::chrono::duration< double > total = t1-t0;
 	std::ofstream file("cuda_tasks_timings.csv", std::ios::app);
 	if (file.is_open()) {
-	file << N << "," << duration << "\n";
+	file << N << "," << total.count() << "\n";
 	file.close();}
 
 	return EXIT_SUCCESS;
