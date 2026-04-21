@@ -6,6 +6,7 @@ import pandas as pd
 serial_data = pd.read_csv("serial_timings.csv")
 cuda_kernel_data = pd.read_csv("cuda_kernel_timings.csv")
 cuda_whole_data = pd.read_csv("cuda_timings.csv")
+cuda_tasks_data = pd.read_csv("cuda_tasks_timings.csv")
 
 functions = ["t_a", "t_b", "t_c", "t_d", "t_e"]
 plot_functions = ["t_b", "t_c", "t_d", "t_e"]
@@ -91,3 +92,40 @@ for func in plot_functions:
 
     plt.tight_layout()
     plt.savefig(f"plots/{func}_timings.png")
+
+
+# ---- Total runtime comparison: Serial vs CUDA tasks ----
+serial_total_mean = serial_data.groupby("N")["total_time"].mean()
+serial_total_sem  = serial_data.groupby("N")["total_time"].sem()
+
+cuda_tasks_total_mean = cuda_tasks_data.groupby("N")["total_time"].mean()
+cuda_tasks_total_sem  = cuda_tasks_data.groupby("N")["total_time"].sem()
+
+fig, ax = plt.subplots(figsize=(8, 5))
+
+ax.errorbar(
+    Ns,
+    serial_total_mean.loc[Ns],
+    yerr=serial_total_sem.loc[Ns],
+    fmt='-o',
+    capsize=5,
+    label="Serial"
+)
+
+ax.errorbar(
+    Ns,
+    cuda_tasks_total_mean.loc[Ns],
+    yerr=cuda_tasks_total_sem.loc[Ns],
+    fmt='-o',
+    capsize=5,
+    label="CUDA asynchronous tasks"
+)
+
+ax.set_xlabel("Problem size (N)")
+ax.set_ylabel("Total time (s)")
+ax.set_title("Total runtime: Serial vs CUDA asynchronous tasks")
+ax.legend()
+ax.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.savefig("plots/total_time_serial_vs_tasks.png")
