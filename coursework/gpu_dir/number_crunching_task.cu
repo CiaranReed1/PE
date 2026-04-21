@@ -301,7 +301,7 @@ int main(int argc, char **argv) {
 	cudaFreeHost(w);
 	cudaFreeHost(z);
 
-	auto t1 = std::chrono::high_resolution_clock::now();
+	auto t1 = std::chrono::high_resolution_clock::now(); //record total time elapsed
 	std::chrono::duration< double > total = t1-t0;
 	std::ofstream file("cuda_tasks_timings.csv", std::ios::app);
 	if (file.is_open()) {
