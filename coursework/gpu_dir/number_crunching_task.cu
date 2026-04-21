@@ -190,16 +190,17 @@ int main(int argc, char **argv) {
 		exit(0);
 	}
 
-	double *u = new double[N];
-	double *v = new double[N];
-
+	double *u;
+	double *v;
 	double *A;
 	double *x;
 	double *y;
 	double *w;
 	double *z;
 
-	size_t NN = static_cast<size_t>(N) * static_cast<size_t>(N); //using this "pinned" host memory can enable more asynchronous memory transfers
+	size_t NN = static_cast<size_t>(N) * static_cast<size_t>(N); //using this "pinned" host memory enables the CUDA api to do asynchronous memory transfers between device and host
+	cudaMallocHost((void**)&u, sizeof(double) * N);
+	cudaMallocHost((void**)&v, sizeof(double) * N);
 	cudaMallocHost((void**)&A, sizeof(double) * NN);
 	cudaMallocHost((void**)&x, sizeof(double) * N);
 	cudaMallocHost((void**)&y, sizeof(double) * N);
@@ -209,7 +210,7 @@ int main(int argc, char **argv) {
 
 	init_datastructures(u, v, A, N);
 
-	//allocate device memory and copy data to device for u,v,x,w,y,A
+	//allocate device memory and copy data to device for u,v
 	double *u_d;
 	double *v_d;
 	double *x_d;
@@ -224,9 +225,8 @@ int main(int argc, char **argv) {
 	cudaMalloc((void **)&y_d,sizeof(double)*N);
 	cudaMalloc((void **)&z_d,sizeof(double)*N);
 	cudaMalloc((void **)&A_d,sizeof(double)*NN);
-	cudaMemcpy(u_d, u, sizeof(double) * N, cudaMemcpyHostToDevice);
+	cudaMemcpy(u_d, u, sizeof(double) * N, cudaMemcpyHostToDevice); //blocking memory transfer 
 	cudaMemcpy(v_d, v, sizeof(double) * N, cudaMemcpyHostToDevice);
-
 
 	cudaStream_t streamMem, streamB, streamC, streamD;  //create streams
 	cudaStreamCreate(&streamMem);
@@ -234,7 +234,7 @@ int main(int argc, char **argv) {
 	cudaStreamCreate(&streamC);
 	cudaStreamCreate(&streamD);
 
-	cudaEvent_t b_done, A_transferred, c_done; //create event to signal when b is done
+	cudaEvent_t b_done, A_transferred, c_done; //create important events
 	cudaEventCreate(&b_done);
 	cudaEventCreate(&A_transferred);
 	cudaEventCreate(&c_done);
@@ -270,9 +270,11 @@ int main(int argc, char **argv) {
 
 	double s = function_a(u, v, N); //run f_a concurrently on the CPU alongisde f_b, f_c and f_d on the GPU
 
-	int nthreads_e = 256;
+	int nthreads_e = 256; //launch kernel e, which can only start when a,b and c are all done (as it needs s,x,y)
 	dim3 threadsPerBlock_e(nthreads_e);
-	gpu_function_e<<<numBlocks, threadsPerBlock_e,0,streamC>>>(N, s, x_d, y_d,z_d); 
+	cudaDeviceSynchronize(); 
+	gpu_function_e<<<numBlocks, threadsPerBlock_e,0,streamC>>>(N, s, x_d, y_d,z_d);
+	cudaDeviceSynchronize(); 
 	cudaMemcpyAsync(z, z_d, sizeof(double)*N, cudaMemcpyDeviceToHost, streamC);
 
 	cudaDeviceSynchronize(); //global sync
@@ -294,8 +296,8 @@ int main(int argc, char **argv) {
 
 	print_results(s, x, y, z, A, w, N);
 
-	delete[] u;
-	delete[] v;
+	cudaFreeHost(u);
+	cudaFreeHost(v);
 	cudaFreeHost(A);
 	cudaFreeHost(x);
 	cudaFreeHost(y);
