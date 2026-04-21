@@ -10,7 +10,7 @@ cuda_tasks_data = pd.read_csv("cuda_tasks_timings.csv")
 
 functions = ["t_a", "t_b", "t_c", "t_d", "t_e"]
 plot_functions = ["t_b", "t_c", "t_d", "t_e"]
-Ns = [10000, 20000, 30000]
+Ns = [1000,5000,10000,15000,20000,25000,30000]
 
 # ---- First plot: serial means with standard error ----
 serial_mean = serial_data.groupby("N")[functions].mean()
@@ -130,28 +130,27 @@ ax.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.savefig("plots/total_time_serial_vs_tasks.png")
 
-# ---- Linear regression for total runtime ----
+# ---- Quadratic regression for total runtime ----
 
-# Extract means (already computed earlier)
+# Extract means
 serial_y = serial_total_mean.loc[Ns].values
 cuda_tasks_y = cuda_tasks_total_mean.loc[Ns].values
 
-# Perform linear regression (degree 1 polynomial)
-serial_coeffs = np.polyfit(Ns, serial_y, 1)
-cuda_coeffs = np.polyfit(Ns, cuda_tasks_y, 1)
+# Perform quadratic regression (degree 2 polynomial)
+serial_coeffs = np.polyfit(Ns, serial_y, 2)
+cuda_coeffs = np.polyfit(Ns, cuda_tasks_y, 2)
 
-# Extract slope and intercept
-m_serial, c_serial = serial_coeffs
-m_cuda, c_cuda = cuda_coeffs
+# Extract coefficients
+a_serial, b_serial, c_serial = serial_coeffs
+a_cuda, b_cuda, c_cuda = cuda_coeffs
 
-# Generate smooth N values for plotting fitted lines
-N_fit = np.linspace(min(Ns), max(Ns), 100)
+# Generate smooth N values for plotting fitted curves
+N_fit = np.linspace(min(Ns), max(Ns), 200)
 
-serial_fit = m_serial * N_fit + c_serial
-cuda_fit = m_cuda * N_fit + c_cuda
+serial_fit = a_serial * N_fit**2 + b_serial * N_fit + c_serial
+cuda_fit = a_cuda * N_fit**2 + b_cuda * N_fit + c_cuda
 
-
-# ---- Plot with regression lines ----
+# ---- Plot with quadratic regression curves ----
 fig, ax = plt.subplots(figsize=(8, 5))
 
 # Original data with error bars
@@ -173,26 +172,26 @@ ax.errorbar(
     label="CUDA tasks (data)"
 )
 
-# Fitted lines
+# Fitted curves
 ax.plot(
     N_fit,
     serial_fit,
     '--',
-    label=f"Serial fit: T(N) = {m_serial:.2e} N + {c_serial:.2e}"
+    label=f"Serial fit: T(N) = {a_serial:.2e}N² + {b_serial:.2e}N + {c_serial:.2e}"
 )
 
 ax.plot(
     N_fit,
     cuda_fit,
     '--',
-    label=f"CUDA tasks fit: T(N) = {m_cuda:.2e} N + {c_cuda:.2e}"
+    label=f"CUDA tasks fit: T(N) = {a_cuda:.2e}N² + {b_cuda:.2e}N + {c_cuda:.2e}"
 )
 
 ax.set_xlabel("Problem size (N)")
 ax.set_ylabel("Total time (s)")
-ax.set_title("Total runtime with linear regression")
+ax.set_title("Total runtime with quadratic regression")
 ax.legend()
 ax.grid(True, alpha=0.3)
 
 plt.tight_layout()
-plt.savefig("plots/total_time_regression.png")
+plt.savefig("plots/total_time_quadratic_regression.png")
