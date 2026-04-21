@@ -12,3 +12,6 @@ loopgpu: number_crunching_loop.cu
 
 clean:
 	rm -f number_crunching loopgpu new_number_crunching
+
+taskgpu: number_crunching_task.cu
+	module purge && module load cuda/12.0 && $(NVCC) $(NVCCFLAGS) -o taskgpu number_crunching_task.cu
