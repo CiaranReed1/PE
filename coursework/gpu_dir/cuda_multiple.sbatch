@@ -35,3 +35,4 @@ done
 rm numcrunch_cuda
 rm numcrunch_kernel
 rm numcrunch_task
+rm serial

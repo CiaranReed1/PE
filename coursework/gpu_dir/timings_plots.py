@@ -129,3 +129,70 @@ ax.grid(True, alpha=0.3)
 
 plt.tight_layout()
 plt.savefig("plots/total_time_serial_vs_tasks.png")
+
+# ---- Linear regression for total runtime ----
+
+# Extract means (already computed earlier)
+serial_y = serial_total_mean.loc[Ns].values
+cuda_tasks_y = cuda_tasks_total_mean.loc[Ns].values
+
+# Perform linear regression (degree 1 polynomial)
+serial_coeffs = np.polyfit(Ns, serial_y, 1)
+cuda_coeffs = np.polyfit(Ns, cuda_tasks_y, 1)
+
+# Extract slope and intercept
+m_serial, c_serial = serial_coeffs
+m_cuda, c_cuda = cuda_coeffs
+
+# Generate smooth N values for plotting fitted lines
+N_fit = np.linspace(min(Ns), max(Ns), 100)
+
+serial_fit = m_serial * N_fit + c_serial
+cuda_fit = m_cuda * N_fit + c_cuda
+
+
+# ---- Plot with regression lines ----
+fig, ax = plt.subplots(figsize=(8, 5))
+
+# Original data with error bars
+ax.errorbar(
+    Ns,
+    serial_y,
+    yerr=serial_total_sem.loc[Ns],
+    fmt='o',
+    capsize=5,
+    label="Serial (data)"
+)
+
+ax.errorbar(
+    Ns,
+    cuda_tasks_y,
+    yerr=cuda_tasks_total_sem.loc[Ns],
+    fmt='o',
+    capsize=5,
+    label="CUDA tasks (data)"
+)
+
+# Fitted lines
+ax.plot(
+    N_fit,
+    serial_fit,
+    '--',
+    label=f"Serial fit: T(N) = {m_serial:.2e} N + {c_serial:.2e}"
+)
+
+ax.plot(
+    N_fit,
+    cuda_fit,
+    '--',
+    label=f"CUDA tasks fit: T(N) = {m_cuda:.2e} N + {c_cuda:.2e}"
+)
+
+ax.set_xlabel("Problem size (N)")
+ax.set_ylabel("Total time (s)")
+ax.set_title("Total runtime with linear regression")
+ax.legend()
+ax.grid(True, alpha=0.3)
+
+plt.tight_layout()
+plt.savefig("plots/total_time_regression.png")
