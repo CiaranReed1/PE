@@ -238,7 +238,7 @@ int main(int argc, char **argv) {
 	cudaEventCreate(&b_done);
 	cudaEventCreate(&A_transferred);
 	cudaEventCreate(&c_done);
-	cudaEventCreate(%d_done);
+	cudaEventCreate(&d_done);
 
 	dim3 numBlocks(2*SM_count); //launch kernel b, record finish then transfer results back
 	dim3 threadsPerBlock_b(256);  
