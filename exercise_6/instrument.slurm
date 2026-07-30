@@ -13,5 +13,18 @@ module purge
 module load gcc/12.2 likwid/5.2.0
 gcc -std=c99 -mfma -O1 -DLIKWID_PERFMON -fno-inline -march=native \
     -o simple_instrumented simple_instrumented.c -llikwid
-likwid-perfctr -m -g "MEM_DP" -C 0 ./simple_instrumented 100000  
+
+for perf_group in MEM_DP CACHE TLB L2; do
+    echo "Testing ${perf_group}"
+
+    likwid-perfctr \
+        -V 2 \
+        -m \
+        -g "${perf_group}" \
+        -C 0 \
+        ./simple_instrumented \
+        10000 \
+    || echo "FAILED: ${perf_group}"
+done
+ 
 rm simple_instrumented
